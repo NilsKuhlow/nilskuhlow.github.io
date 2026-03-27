@@ -3,855 +3,923 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nils Kuhlow — Architektur</title>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<title>Siena — Una Passeggiata</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Bebas+Neue&family=Jost:wght@300;400&display=swap" rel="stylesheet">
 <style>
-:root {
-  --off-white: #f5f3ef;
-  --warm-white: #faf9f7;
-  --ink: #1a1916;
-  --mid: #6b6860;
-  --light: #b8b4ac;
-  --yellow: #e8c832;
-  --yellow-dim: rgba(232,200,50,0.10);
-  --border: #dedad4;
-}
+  :root {
+    --siena: #8B3A1A;
+    --terra: #C4622D;
+    --sand: #E8D5B0;
+    --cream: #F5EFE0;
+    --ink: #1A1209;
+    --gold: #C49A3C;
+    --muted: #9A8878;
+    --route-color: #C4622D;
+  }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; scroll-behavior: smooth; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-  background: var(--warm-white);
-  color: var(--ink);
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-weight: 300;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-  cursor: none;
-}
+  html { scroll-behavior: smooth; }
 
-/* ─── CUSTOM CURSOR ─── */
-#cursor {
-  position: fixed;
-  width: 8px; height: 8px;
-  background: var(--ink);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%,-50%);
-  transition: width 0.25s, height 0.25s, background 0.25s;
-  will-change: left, top;
-}
-#cursor-ring {
-  position: fixed;
-  width: 34px; height: 34px;
-  border: 1px solid rgba(26,25,22,0.4);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9998;
-  transform: translate(-50%,-50%);
-  transition: width 0.32s cubic-bezier(0.33,1,0.68,1),
-              height 0.32s cubic-bezier(0.33,1,0.68,1),
-              border-color 0.28s;
-  will-change: left, top;
-}
-body.hovering #cursor {
-  width: 5px; height: 5px;
-  background: var(--yellow);
-}
-body.hovering #cursor-ring {
-  width: 52px; height: 52px;
-  border-color: var(--yellow);
-  border-width: 1.5px;
-}
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
 
-/* ─── LOADER ─── */
-#loader {
-  position: fixed; inset: 0; z-index: 1000;
-  background: var(--ink);
-  display: flex; align-items: center; justify-content: center;
-  flex-direction: column; gap: 2.2rem;
-  pointer-events: all;
-}
-#loader.done {
-  pointer-events: none;
-  animation: loaderSlideUp 0.85s 0.15s cubic-bezier(0.76,0,0.24,1) forwards;
-}
-@keyframes loaderSlideUp {
-  to { transform: translateY(-100%); }
-}
+  /* ─── INTRO ─── */
+  .intro {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 8vw 10vh;
+    background: var(--ink);
+    position: relative;
+    overflow: hidden;
+  }
 
-.loader-name {
-  font-family: 'EB Garamond', serif;
-  font-size: clamp(2.8rem, 6vw, 5.5rem);
-  color: var(--warm-white);
-  letter-spacing: -0.01em;
-  display: flex; overflow: hidden;
-}
-.loader-name span {
-  display: inline-block;
-  opacity: 0; transform: translateY(110%);
-  animation: charUp 0.65s cubic-bezier(0.33,1,0.68,1) forwards;
-}
-@keyframes charUp {
-  to { opacity: 1; transform: translateY(0); }
-}
+  .intro-bg {
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 60% 40%, rgba(139,58,26,0.35) 0%, transparent 60%),
+      radial-gradient(ellipse at 20% 80%, rgba(196,154,60,0.15) 0%, transparent 50%);
+  }
 
-.loader-bar-track {
-  width: 220px; height: 1px;
-  background: rgba(255,255,255,0.1);
-  position: relative; overflow: hidden;
-}
-.loader-bar-fill {
-  position: absolute; top: 0; left: 0; height: 100%;
-  width: 0; background: var(--yellow);
-  animation: barFill 1.2s 0.3s cubic-bezier(0.33,1,0.68,1) forwards;
-}
-@keyframes barFill { to { width: 100%; } }
+  .intro-texture {
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
 
-.loader-sub {
-  font-size: 0.62rem; letter-spacing: 0.24em; text-transform: uppercase;
-  color: #5a5650;
-  opacity: 0; animation: fadeIn 0.5s 0.9s forwards;
-}
+  .intro-label {
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 2rem;
+    position: relative;
+  }
 
-/* ─── NAV ─── */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 1.6rem 3rem;
-  background: rgba(250,249,247,0.93);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.3s;
-}
-nav.scrolled { border-bottom-color: var(--border); }
+  .intro h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(5rem, 15vw, 13rem);
+    line-height: 0.88;
+    color: var(--cream);
+    letter-spacing: -0.02em;
+    position: relative;
+  }
 
-.nav-name {
-  font-family: 'EB Garamond', serif; font-size: 1.1rem;
-  letter-spacing: 0.04em; text-decoration: none; color: var(--ink);
-  transition: color 0.22s;
-}
-.nav-name:hover { color: var(--yellow); }
+  .intro h1 em {
+    font-style: italic;
+    color: var(--terra);
+  }
 
-.nav-links { display: flex; gap: 2.5rem; list-style: none; }
-.nav-links a {
-  text-decoration: none; color: var(--ink);
-  font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;
-  position: relative; transition: color 0.2s;
-}
-.nav-links a::after {
-  content: ''; position: absolute; bottom: -3px; left: 0; right: 0;
-  height: 1.5px; background: var(--yellow);
-  transform: scaleX(0); transform-origin: left;
-  transition: transform 0.3s cubic-bezier(0.33,1,0.68,1);
-}
-.nav-links a:hover::after { transform: scaleX(1); }
+  .intro-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 1.1rem;
+    margin-top: 2rem;
+    max-width: 400px;
+    line-height: 1.7;
+    position: relative;
+  }
 
-/* ─── SPA PAGES ─── */
-.page { display: none; }
-.page.active { display: block; }
+  .scroll-hint {
+    position: absolute;
+    bottom: 3rem;
+    right: 8vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--muted);
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+  }
 
-/* ─── HERO ─── */
-#hero {
-  min-height: 100vh;
-  display: grid; grid-template-columns: 1fr 1fr;
-  padding-top: 5rem;
-}
-.hero-left {
-  display: flex; flex-direction: column; justify-content: flex-end;
-  padding: 6rem 3rem 5rem;
-}
-.hero-label {
-  font-size: 0.66rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--mid); margin-bottom: 1.5rem;
-  opacity: 0; animation: fadeUp 0.9s 1.7s forwards;
-}
-.hero-name {
-  font-family: 'EB Garamond', serif;
-  font-size: clamp(3.5rem, 7vw, 7rem);
-  font-weight: 400; line-height: 1.0; letter-spacing: -0.01em;
-  margin-bottom: 1.2rem;
-  opacity: 0; animation: fadeUp 0.9s 1.9s forwards;
-}
-.hero-name em { font-style: italic; color: var(--yellow); }
-.hero-sub {
-  font-size: 0.76rem; letter-spacing: 0.13em; text-transform: uppercase;
-  color: var(--mid); margin-bottom: 3rem;
-  opacity: 0; animation: fadeUp 0.9s 2.1s forwards;
-}
-.hero-desc {
-  max-width: 360px; font-size: 0.93rem; line-height: 1.8; color: var(--mid);
-  opacity: 0; animation: fadeUp 0.9s 2.3s forwards;
-}
-.hero-right {
-  position: relative; overflow: hidden;
-  opacity: 0; animation: fadeIn 1.2s 1.8s forwards;
-}
-.hero-image-placeholder {
-  width: 100%; height: 100%; min-height: 80vh;
-  background: var(--off-white); border-left: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  flex-direction: column; gap: 1rem;
-}
-.sketch-svg { opacity: 0.16; }
-.img-hint { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--light); }
+  .scroll-line {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, var(--terra));
+    animation: scrollpulse 2s ease-in-out infinite;
+  }
 
-/* ─── SECTIONS ─── */
-section { padding: 8rem 3rem; }
-.section-header {
-  display: flex; align-items: baseline; gap: 1.5rem;
-  margin-bottom: 5rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;
-}
-.section-num { font-size: 0.62rem; letter-spacing: 0.15em; color: var(--light); }
-.section-title { font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; }
+  @keyframes scrollpulse {
+    0%, 100% { opacity: 0.4; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.2); }
+  }
 
-/* ─── PROJECTS ─── */
-#projects-section { background: var(--warm-white); }
-.projects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  /* ─── ROUTE WRAPPER ─── */
+  .route-section {
+    position: relative;
+    padding: 0;
+  }
 
-.project-item {
-  display: grid; grid-template-rows: 1fr auto;
-  border: 1px solid var(--border); margin: -1px 0 0 -1px;
-  cursor: none; text-decoration: none; color: inherit;
-  position: relative; overflow: hidden;
-}
-.project-item::before {
-  content: ''; position: absolute; inset: 0;
-  background: var(--yellow-dim);
-  opacity: 0; transition: opacity 0.35s; z-index: 1; pointer-events: none;
-}
-.project-item:hover::before { opacity: 1; }
-.project-item:hover .project-arrow { transform: translate(5px, -5px); color: var(--yellow); }
+  /* ─── SVG ROUTE MAP ─── */
+  .route-map-wrapper {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    z-index: 1;
+  }
 
-.project-image {
-  aspect-ratio: 4/3; display: flex; align-items: center;
-  justify-content: center; overflow: hidden; position: relative;
-}
-.project-image-inner {
-  width: 100%; height: 100%; display: flex; align-items: center;
-  justify-content: center; flex-direction: column; gap: 0.5rem;
-}
-.project-item:nth-child(1) .project-image { background: #edeae2; }
-.project-item:nth-child(2) .project-image { background: #e5e1d9; }
-.project-item:nth-child(3) .project-image { background: #ddd9d1; }
-.project-item:nth-child(4) .project-image { background: #e9e5dd; }
+  .route-map-wrapper svg {
+    width: 100%;
+    height: 100%;
+  }
 
-.project-img-label { font-size: 0.57rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--light); }
+  /* ─── SCROLL CONTENT ─── */
+  .scroll-content {
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+  }
 
-.project-info {
-  padding: 1.5rem 2rem; display: flex; justify-content: space-between;
-  align-items: flex-start; border-top: 1px solid var(--border);
-  position: relative; z-index: 2;
-}
-.project-type { font-size: 0.57rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--mid); margin-bottom: 0.4rem; }
-.project-name { font-family: 'EB Garamond', serif; font-size: 1.35rem; font-weight: 400; line-height: 1.2; }
-.project-year { font-size: 0.62rem; color: var(--light); margin-top: 0.3rem; }
-.project-arrow {
-  font-size: 1.1rem; color: var(--mid);
-  transition: transform 0.25s cubic-bezier(0.33,1,0.68,1), color 0.25s;
-  align-self: flex-end; margin-left: 1rem;
-}
+  /* ─── STOP PANELS ─── */
+  .stop-block {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 0 8vw;
+    pointer-events: none;
+  }
 
-/* ─── ABOUT ─── */
-#about-section {
-  background: var(--off-white);
-  display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start;
-}
-.about-text {
-  font-family: 'EB Garamond', serif;
-  font-size: clamp(1.4rem, 2.2vw, 2rem); line-height: 1.55; margin-bottom: 2.5rem;
-}
-.about-body { font-size: 0.88rem; line-height: 1.85; color: var(--mid); margin-bottom: 1.5rem; }
+  .stop-trigger {
+    pointer-events: all;
+    max-width: 340px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
 
-.skills-list { list-style: none; margin-top: 3rem; }
-.skills-list li {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 0.9rem 0; border-bottom: 1px solid var(--border);
-  transition: padding-left 0.28s cubic-bezier(0.33,1,0.68,1);
-}
-.skills-list li:first-child { border-top: 1px solid var(--border); }
-.skills-list li:hover { padding-left: 0.7rem; }
-.skills-list li:hover .skill-name { color: var(--yellow); }
-.skill-name { color: var(--ink); text-transform: uppercase; font-size: 0.67rem; letter-spacing: 0.12em; transition: color 0.22s; }
-.skill-tools { color: var(--light); font-size: 0.7rem; }
+  .stop-trigger:hover { transform: translateX(6px); }
 
-/* ─── EDUCATION ─── */
-#education-section { background: var(--warm-white); }
-.education-grid {
-  display: grid; grid-template-columns: 1fr 1fr 1fr;
-  gap: 0; border: 1px solid var(--border);
-}
-.edu-item {
-  padding: 2.5rem; border-right: 1px solid var(--border);
-  transition: background 0.28s;
-}
-.edu-item:last-child { border-right: none; }
-.edu-item:hover { background: var(--yellow-dim); }
-.edu-period { font-size: 0.57rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--yellow); margin-bottom: 1rem; }
-.edu-degree { font-family: 'EB Garamond', serif; font-size: 1.2rem; margin-bottom: 0.5rem; line-height: 1.3; }
-.edu-school { font-size: 0.75rem; color: var(--mid); }
+  .stop-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem;
+    line-height: 1;
+    color: var(--terra);
+    opacity: 0.25;
+    user-select: none;
+  }
 
-/* ─── CONTACT ─── */
-#contact-section { background: var(--ink); color: var(--warm-white); }
-#contact-section .section-title { color: var(--off-white); }
-#contact-section .section-num { color: #4a4840; }
-#contact-section .section-header { border-bottom-color: #2e2c28; }
+  .stop-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 2rem;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-top: -1rem;
+  }
 
-.contact-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: end; }
-.contact-tagline {
-  font-family: 'EB Garamond', serif;
-  font-size: clamp(2rem, 4vw, 4rem); line-height: 1.15; color: var(--off-white);
-}
-.contact-tagline em { font-style: italic; color: var(--yellow); }
+  .stop-subtitle {
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-top: 0.3rem;
+  }
 
-.contact-email-wrap { display: flex; flex-direction: column; gap: 0.8rem; }
-.contact-email-label { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: #5a5650; }
-.contact-email-link {
-  font-family: 'EB Garamond', serif; font-size: 1.55rem;
-  color: var(--off-white); text-decoration: none;
-  position: relative; display: inline-block; transition: color 0.22s;
-}
-.contact-email-link::after {
-  content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
-  height: 1.5px; background: var(--yellow);
-  transform: scaleX(0); transform-origin: left;
-  transition: transform 0.4s cubic-bezier(0.33,1,0.68,1);
-}
-.contact-email-link:hover { color: var(--yellow); }
-.contact-email-link:hover::after { transform: scaleX(1); }
+  .stop-desc {
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: #5a4a3a;
+    margin-top: 1rem;
+    font-weight: 300;
+  }
 
-/* ─── FOOTER ─── */
-footer {
-  background: var(--ink); color: #4a4840;
-  padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center;
-  border-top: 1px solid #252320;
-  font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
-}
+  .open-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.2rem;
+    background: none;
+    border: 1px solid var(--terra);
+    color: var(--terra);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    pointer-events: all;
+  }
 
-/* ─── PROJECT DETAIL ─── */
-#page-detail { min-height: 100vh; padding-top: 5rem; }
+  .open-btn:hover {
+    background: var(--terra);
+    color: var(--cream);
+  }
 
-.detail-back {
-  display: inline-flex; align-items: center; gap: 0.7rem;
-  padding: 2.5rem 3rem 0;
-  font-size: 0.67rem; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--mid); text-decoration: none; cursor: none;
-  transition: color 0.2s, gap 0.25s cubic-bezier(0.33,1,0.68,1);
-}
-.detail-back:hover { color: var(--ink); gap: 1rem; }
-.back-arrow { display: inline-block; transition: transform 0.25s cubic-bezier(0.33,1,0.68,1); }
-.detail-back:hover .back-arrow { transform: translateX(-5px); }
+  .open-btn svg {
+    width: 10px;
+    height: 10px;
+    transition: transform 0.25s;
+  }
 
-.detail-header { padding: 3rem 3rem 0; }
-.detail-type { font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid); margin-bottom: 1rem; }
-.detail-title {
-  font-family: 'EB Garamond', serif;
-  font-size: clamp(3rem, 7vw, 6rem); line-height: 1.0; margin-bottom: 1rem;
-}
-.detail-year { font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--yellow); }
+  .open-btn:hover svg { transform: rotate(45deg); }
 
-.detail-hero-image {
-  margin: 3rem 3rem 0; aspect-ratio: 16/7;
-  background: var(--off-white); border: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  flex-direction: column; gap: 0.8rem; overflow: hidden;
-}
+  /* right-aligned stops */
+  .stop-block.right {
+    justify-content: flex-end;
+  }
 
-.detail-body {
-  padding: 5rem 3rem; display: grid; grid-template-columns: 2fr 1fr; gap: 5rem;
-}
-.detail-description { font-family: 'EB Garamond', serif; font-size: 1.25rem; line-height: 1.75; }
-.detail-fact {
-  padding: 1rem 0; border-bottom: 1px solid var(--border);
-  display: flex; flex-direction: column; gap: 0.3rem;
-}
-.detail-fact:first-child { border-top: 1px solid var(--border); }
-.fact-label { font-size: 0.58rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mid); }
-.fact-value { font-family: 'EB Garamond', serif; font-size: 1.05rem; }
+  /* ─── OVERLAY PANEL ─── */
+  .overlay-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(26,18,9,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
 
-.detail-images {
-  padding: 0 3rem 6rem;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
-}
-.detail-img-slot {
-  aspect-ratio: 4/3; background: var(--off-white); border: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.5rem;
-}
+  .overlay-backdrop.active {
+    opacity: 1;
+    pointer-events: all;
+  }
 
-/* ─── SCROLL REVEAL ─── */
-.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.8s ease, transform 0.8s ease; }
-.reveal.visible { opacity: 1; transform: translateY(0); }
-.reveal-delay-1 { transition-delay: 0.15s; }
-.reveal-delay-2 { transition-delay: 0.3s; }
-.reveal-delay-3 { transition-delay: 0.45s; }
+  .overlay-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: min(480px, 95vw);
+    background: var(--cream);
+    z-index: 101;
+    transform: translateX(100%);
+    transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
 
-/* ─── ANIMATIONS ─── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(22px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
+  .overlay-panel.active {
+    transform: translateX(0);
+  }
 
-/* ─── PAGE TRANSITION ─── */
-.page-enter { animation: pageIn 0.55s cubic-bezier(0.33,1,0.68,1) forwards; }
-@keyframes pageIn {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+  .panel-img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    display: block;
+    background: var(--sand);
+    position: relative;
+  }
 
-/* ─── MOBILE ─── */
-@media (max-width: 768px) {
-  body { cursor: auto; }
-  #cursor, #cursor-ring { display: none; }
-  nav { padding: 1.2rem 1.5rem; }
-  .nav-links { display: none; }
-  #hero { grid-template-columns: 1fr; }
-  .hero-left { padding: 7rem 1.5rem 3rem; }
-  .hero-right { min-height: 55vw; }
-  section { padding: 5rem 1.5rem; }
-  .projects-grid { grid-template-columns: 1fr; }
-  #about-section { grid-template-columns: 1fr; gap: 3rem; }
-  .education-grid { grid-template-columns: 1fr; }
-  .edu-item { border-right: none; border-bottom: 1px solid var(--border); }
-  .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
-  .detail-body { grid-template-columns: 1fr; gap: 3rem; }
-  .detail-images { grid-template-columns: 1fr; }
-  .detail-hero-image, .detail-back, .detail-header, .detail-body, .detail-images { padding-left: 1.5rem; padding-right: 1.5rem; margin-left: 0; margin-right: 0; }
-  footer { flex-direction: column; gap: 0.5rem; text-align: center; }
-}
+  .panel-img-placeholder {
+    width: 100%;
+    height: 260px;
+    background: linear-gradient(135deg, var(--siena), var(--terra), var(--sand));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .panel-img-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Ccircle cx='50' cy='50' r='40' fill='none' stroke='rgba(255,255,255,0.1)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='25' fill='none' stroke='rgba(255,255,255,0.08)' stroke-width='1'/%3E%3C/svg%3E") center / 80px;
+  }
+
+  .panel-img-icon {
+    font-size: 4rem;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+  }
+
+  .panel-img-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(26,18,9,0.7));
+    color: var(--cream);
+    padding: 2rem 1.5rem 1rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+  }
+
+  .panel-body {
+    padding: 2rem 2rem 3rem;
+    flex: 1;
+  }
+
+  .panel-stop-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.2em;
+    color: var(--terra);
+    margin-bottom: 0.5rem;
+  }
+
+  .panel-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 2.2rem;
+    line-height: 1.05;
+    color: var(--ink);
+  }
+
+  .panel-ital {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 1rem;
+    margin-top: 0.3rem;
+    display: block;
+  }
+
+  .panel-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--terra);
+    margin: 1.5rem 0;
+  }
+
+  .panel-text {
+    font-size: 0.9rem;
+    line-height: 1.9;
+    color: #4a3a2a;
+    font-weight: 300;
+  }
+
+  .panel-facts {
+    margin-top: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .fact-item {
+    background: var(--sand);
+    padding: 0.8rem 1rem;
+  }
+
+  .fact-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.2rem;
+  }
+
+  .fact-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+
+  .panel-close {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.2rem;
+    background: rgba(26,18,9,0.5);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background 0.2s;
+  }
+
+  .panel-close:hover { background: var(--siena); }
+
+  /* ─── OUTRO ─── */
+  .outro {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 15vh 8vw;
+    text-align: center;
+  }
+
+  .outro h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(2rem, 5vw, 4rem);
+    color: var(--sand);
+    margin-bottom: 1rem;
+  }
+
+  .outro p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+
+  .outro-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--terra);
+    margin: 3rem auto 0;
+  }
+
+  /* ─── ROUTE SVG STYLES ─── */
+  .route-path {
+    fill: none;
+    stroke: var(--route-color);
+    stroke-width: 2;
+    stroke-dasharray: 8 4;
+    opacity: 0.4;
+  }
+
+  .route-dot {
+    fill: var(--route-color);
+    cursor: pointer;
+    transition: r 0.2s ease;
+  }
+
+  .route-dot:hover { r: 9; }
+
+  .route-dot-ring {
+    fill: none;
+    stroke: var(--route-color);
+    stroke-width: 1;
+    opacity: 0.4;
+    animation: ripple 2s ease-out infinite;
+  }
+
+  @keyframes ripple {
+    0% { r: 8; opacity: 0.5; }
+    100% { r: 20; opacity: 0; }
+  }
+
+  .street-label {
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    fill: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .district-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    fill: rgba(139,58,26,0.35);
+    letter-spacing: 0.1em;
+  }
+
+  /* ─── PROGRESS BAR ─── */
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: var(--terra);
+    z-index: 50;
+    transition: width 0.1s linear;
+  }
+
+  /* ─── NAV ─── */
+  .top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    padding: 1.5rem 8vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    mix-blend-mode: normal;
+  }
+
+  .nav-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--cream);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .nav-title.visible { opacity: 1; }
+
+  .nav-stops {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .nav-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(245,239,224,0.3);
+    transition: background 0.3s, transform 0.3s;
+    cursor: pointer;
+  }
+
+  .nav-dot.active {
+    background: var(--terra);
+    transform: scale(1.4);
+  }
 </style>
 </head>
 <body>
 
-<!-- CURSOR -->
-<div id="cursor"></div>
-<div id="cursor-ring"></div>
+<div class="progress-bar" id="progressBar"></div>
 
-<!-- LOADER -->
-<div id="loader">
-  <div class="loader-name" id="loader-name"></div>
-  <div class="loader-bar-track"><div class="loader-bar-fill"></div></div>
-  <div class="loader-sub">Architektur — Portfolio</div>
-</div>
-
-<!-- NAV -->
-<nav id="main-nav">
-  <a href="#" class="nav-name" onclick="showHome(event)">Nils Kuhlow</a>
-  <ul class="nav-links">
-    <li><a href="#" onclick="showHome(event);smoothTo('projects-section')">Projekte</a></li>
-    <li><a href="#" onclick="showHome(event);smoothTo('about-section')">Profil</a></li>
-    <li><a href="#" onclick="showHome(event);smoothTo('education-section')">Bildung</a></li>
-    <li><a href="#" onclick="showHome(event);smoothTo('contact-section')">Kontakt</a></li>
-  </ul>
+<nav class="top-nav">
+  <span class="nav-title" id="navTitle">Siena — Una Passeggiata</span>
+  <div class="nav-stops" id="navDots"></div>
 </nav>
 
-<!-- ══════════ HOME ══════════ -->
-<div id="page-home" class="page active">
-
-  <!-- HERO -->
-  <section id="hero">
-    <div class="hero-left">
-      <p class="hero-label">Portfolio — Architekturstudent</p>
-      <h1 class="hero-name">Nils<br><em>Kuhlow</em></h1>
-      <p class="hero-sub">Arbeiten &amp; Studien</p>
-      <p class="hero-desc">
-        Ich studiere Architektur und interessiere mich für die Verbindung von Mensch, Material und Kontext — für Räume, die Bedeutung tragen.
-      </p>
-    </div>
-    <div class="hero-right">
-      <div class="hero-image-placeholder">
-        <svg class="sketch-svg" width="200" height="200" viewBox="0 0 200 200" fill="none">
-          <rect x="30" y="80" width="140" height="90" stroke="#1a1916" stroke-width="1"/>
-          <line x1="30" y1="80" x2="70" y2="40" stroke="#1a1916" stroke-width="1"/>
-          <line x1="170" y1="80" x2="210" y2="40" stroke="#1a1916" stroke-width="1"/>
-          <line x1="70" y1="40" x2="210" y2="40" stroke="#1a1916" stroke-width="1"/>
-          <rect x="85" y="130" width="30" height="40" stroke="#1a1916" stroke-width="0.8"/>
-          <rect x="45" y="100" width="35" height="25" stroke="#1a1916" stroke-width="0.8"/>
-          <rect x="120" y="100" width="35" height="25" stroke="#1a1916" stroke-width="0.8"/>
-          <line x1="100" y1="40" x2="100" y2="80" stroke="#1a1916" stroke-width="0.6" stroke-dasharray="3 3"/>
-        </svg>
-        <span class="img-hint">Dein Bild hier einfügen</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- PROJECTS -->
-  <section id="projects-section">
-    <div class="section-header reveal">
-      <span class="section-num">01</span>
-      <span class="section-title">Ausgewählte Projekte</span>
-    </div>
-    <div class="projects-grid">
-
-      <a href="#" class="project-item reveal" onclick="showProject(event,0)">
-        <div class="project-image"><div class="project-image-inner">
-          <svg class="sketch-svg" width="120" height="80" viewBox="0 0 120 80" fill="none">
-            <rect x="10" y="20" width="100" height="50" stroke="#6b6860" stroke-width="0.8"/>
-            <line x1="10" y1="20" x2="30" y2="5" stroke="#6b6860" stroke-width="0.8"/>
-            <line x1="110" y1="20" x2="130" y2="5" stroke="#6b6860" stroke-width="0.8"/>
-            <line x1="30" y1="5" x2="130" y2="5" stroke="#6b6860" stroke-width="0.8"/>
-            <rect x="50" y="45" width="20" height="25" stroke="#6b6860" stroke-width="0.6"/>
-          </svg>
-          <span class="project-img-label">Visualisierung einfügen</span>
-        </div></div>
-        <div class="project-info">
-          <div class="project-meta">
-            <p class="project-type">Wohnungsbau — Studio</p>
-            <h3 class="project-name">Haus im Wald</h3>
-            <p class="project-year">2024</p>
-          </div>
-          <span class="project-arrow">↗</span>
-        </div>
-      </a>
-
-      <a href="#" class="project-item reveal reveal-delay-1" onclick="showProject(event,1)">
-        <div class="project-image"><div class="project-image-inner">
-          <svg class="sketch-svg" width="120" height="80" viewBox="0 0 120 80" fill="none">
-            <rect x="15" y="30" width="90" height="40" stroke="#6b6860" stroke-width="0.8"/>
-            <rect x="15" y="10" width="40" height="20" stroke="#6b6860" stroke-width="0.8"/>
-            <rect x="65" y="10" width="40" height="20" stroke="#6b6860" stroke-width="0.8"/>
-            <line x1="55" y1="10" x2="65" y2="10" stroke="#6b6860" stroke-width="0.6" stroke-dasharray="2 2"/>
-          </svg>
-          <span class="project-img-label">Visualisierung einfügen</span>
-        </div></div>
-        <div class="project-info">
-          <div class="project-meta">
-            <p class="project-type">Öffentlicher Bau — Entwurf</p>
-            <h3 class="project-name">Bibliothek am Fluss</h3>
-            <p class="project-year">2024</p>
-          </div>
-          <span class="project-arrow">↗</span>
-        </div>
-      </a>
-
-      <a href="#" class="project-item reveal reveal-delay-2" onclick="showProject(event,2)">
-        <div class="project-image"><div class="project-image-inner">
-          <svg class="sketch-svg" width="120" height="80" viewBox="0 0 120 80" fill="none">
-            <circle cx="60" cy="40" r="30" stroke="#6b6860" stroke-width="0.8"/>
-            <line x1="60" y1="10" x2="60" y2="70" stroke="#6b6860" stroke-width="0.5" stroke-dasharray="3 3"/>
-            <line x1="30" y1="40" x2="90" y2="40" stroke="#6b6860" stroke-width="0.5" stroke-dasharray="3 3"/>
-            <rect x="42" y="22" width="36" height="36" stroke="#6b6860" stroke-width="0.6"/>
-          </svg>
-          <span class="project-img-label">Visualisierung einfügen</span>
-        </div></div>
-        <div class="project-info">
-          <div class="project-meta">
-            <p class="project-type">Städtebau — Semesterarbeit</p>
-            <h3 class="project-name">Urbane Verdichtung</h3>
-            <p class="project-year">2023</p>
-          </div>
-          <span class="project-arrow">↗</span>
-        </div>
-      </a>
-
-      <a href="#" class="project-item reveal reveal-delay-3" onclick="showProject(event,3)">
-        <div class="project-image"><div class="project-image-inner">
-          <svg class="sketch-svg" width="120" height="80" viewBox="0 0 120 80" fill="none">
-            <polygon points="60,5 110,70 10,70" stroke="#6b6860" stroke-width="0.8" fill="none"/>
-            <line x1="60" y1="5" x2="60" y2="70" stroke="#6b6860" stroke-width="0.5" stroke-dasharray="3 3"/>
-            <line x1="35" y1="37" x2="85" y2="37" stroke="#6b6860" stroke-width="0.5"/>
-          </svg>
-          <span class="project-img-label">Visualisierung einfügen</span>
-        </div></div>
-        <div class="project-info">
-          <div class="project-meta">
-            <p class="project-type">Installation — Materialstudie</p>
-            <h3 class="project-name">Licht und Schatten</h3>
-            <p class="project-year">2023</p>
-          </div>
-          <span class="project-arrow">↗</span>
-        </div>
-      </a>
-
-    </div>
-  </section>
-
-  <!-- ABOUT -->
-  <section id="about-section">
-    <div class="about-left reveal">
-      <div class="section-header">
-        <span class="section-num">02</span>
-        <span class="section-title">Profil</span>
-      </div>
-      <p class="about-text">
-        Architektur als Gespräch zwischen Mensch, Material und Ort — das ist mein Verständnis von Entwurf.
-      </p>
-      <p class="about-body">
-        Ich studiere Architektur im [Semester]. Meine Arbeiten untersuchen, wie gebaute Räume Erfahrungen prägen und Gemeinschaft fördern können. Mich interessieren rohe Materialien, natürliches Licht und der Dialog zwischen Alt und Neu.
-      </p>
-      <p class="about-body">
-        Neben dem Studium arbeite ich mit Zeichnung und Modellbau, um Ideen zu erkunden, bevor sie digital werden.
-      </p>
-    </div>
-    <div class="about-right reveal reveal-delay-1">
-      <ul class="skills-list">
-        <li><span class="skill-name">Entwurf &amp; Konzept</span><span class="skill-tools">Skizze · Modell · Collage</span></li>
-        <li><span class="skill-name">CAD &amp; 3D</span><span class="skill-tools">AutoCAD · Rhino · SketchUp</span></li>
-        <li><span class="skill-name">Rendering</span><span class="skill-tools">V-Ray · Lumion · Enscape</span></li>
-        <li><span class="skill-name">Visualisierung</span><span class="skill-tools">Photoshop · Illustrator · InDesign</span></li>
-        <li><span class="skill-name">Parametrisch</span><span class="skill-tools">Grasshopper · Revit</span></li>
-        <li><span class="skill-name">Sprachen</span><span class="skill-tools">Deutsch · Englisch · [weitere]</span></li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- EDUCATION -->
-  <section id="education-section">
-    <div class="section-header reveal">
-      <span class="section-num">03</span>
-      <span class="section-title">Bildung &amp; Erfahrung</span>
-    </div>
-    <div class="education-grid">
-      <div class="edu-item reveal">
-        <p class="edu-period">2022 — Heute</p>
-        <h3 class="edu-degree">Bachelor of Science<br>Architektur</h3>
-        <p class="edu-school">Technische Universität [Stadt]</p>
-      </div>
-      <div class="edu-item reveal reveal-delay-1">
-        <p class="edu-period">Sommer 2024</p>
-        <h3 class="edu-degree">Praktikum<br>Architekturbüro</h3>
-        <p class="edu-school">[Büroname], [Stadt]</p>
-      </div>
-      <div class="edu-item reveal reveal-delay-2">
-        <p class="edu-period">2023</p>
-        <h3 class="edu-degree">Auslandssemester<br>[Universität]</h3>
-        <p class="edu-school">[Stadt, Land]</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONTACT -->
-  <section id="contact-section">
-    <div class="section-header">
-      <span class="section-num">04</span>
-      <span class="section-title">Kontakt</span>
-    </div>
-    <div class="contact-inner reveal">
-      <p class="contact-tagline">
-        Offen für Zusammenarbeit,<br>
-        Praktika &amp; <em>neue Ideen.</em>
-      </p>
-      <div class="contact-email-wrap">
-        <span class="contact-email-label">E-Mail</span>
-        <a href="mailto:nils.kuhlow@gmail.com" class="contact-email-link">nils.kuhlow@gmail.com</a>
-      </div>
-    </div>
-  </section>
-
-  <footer>
-    <span>© 2025 Nils Kuhlow</span>
-    <span>Architekturstudent</span>
-    <span>Deutschland</span>
-  </footer>
-
-</div><!-- /page-home -->
-
-<!-- ══════════ PROJECT DETAIL ══════════ -->
-<div id="page-detail" class="page">
-
-  <a href="#" class="detail-back" onclick="showHome(event)">
-    <span class="back-arrow">←</span>
-    <span>Alle Projekte</span>
-  </a>
-
-  <div class="detail-header">
-    <p class="detail-type" id="d-type"></p>
-    <h1 class="detail-title" id="d-title"></h1>
-    <p class="detail-year" id="d-year"></p>
+<!-- INTRO -->
+<section class="intro" id="top">
+  <div class="intro-bg"></div>
+  <div class="intro-texture"></div>
+  <span class="intro-label">Ein Stadtführer · Toscana · Italia</span>
+  <h1>Sie<em>na</em></h1>
+  <p class="intro-sub">Eine Passeggiata durch die mittelalterliche Stadt —<br>Schritt für Schritt, Stein für Stein.</p>
+  <div class="scroll-hint">
+    <span>Scrollen</span>
+    <div class="scroll-line"></div>
   </div>
+</section>
 
-  <div class="detail-hero-image">
-    <svg class="sketch-svg" width="240" height="100" viewBox="0 0 240 100" fill="none">
-      <rect x="20" y="25" width="200" height="55" stroke="#1a1916" stroke-width="0.8"/>
-      <line x1="20" y1="25" x2="50" y2="5" stroke="#1a1916" stroke-width="0.8"/>
-      <line x1="220" y1="25" x2="250" y2="5" stroke="#1a1916" stroke-width="0.8"/>
-      <line x1="50" y1="5" x2="250" y2="5" stroke="#1a1916" stroke-width="0.8"/>
-      <rect x="100" y="50" width="40" height="30" stroke="#1a1916" stroke-width="0.6"/>
+<!-- ROUTE SECTION -->
+<div class="route-section" id="routeSection">
+
+  <!-- STICKY MAP -->
+  <div class="route-map-wrapper" id="mapWrapper">
+    <svg viewBox="0 0 900 600" preserveAspectRatio="xMidYMid meet" id="routeSvg">
+
+      <!-- Background fabric -->
+      <rect width="900" height="600" fill="#F0E8D5"/>
+
+      <!-- Terrain texture blocks -->
+      <rect x="0" y="0" width="900" height="600" fill="url(#grain)" opacity="0.4"/>
+
+      <!-- City fabric: irregular blocks -->
+      <g fill="#E2D5BC" stroke="#D4C4A0" stroke-width="0.5">
+        <polygon points="120,80 280,60 320,110 240,150 160,140"/>
+        <polygon points="300,50 480,40 510,100 430,120 340,90"/>
+        <polygon points="490,35 650,50 660,130 580,140 500,110"/>
+        <polygon points="160,150 300,130 330,210 240,240 170,210"/>
+        <polygon points="310,120 440,110 460,190 380,220 310,200"/>
+        <polygon points="450,100 590,90 600,170 520,190 450,165"/>
+        <polygon points="590,80 720,90 730,170 650,180 600,155"/>
+        <polygon points="170,220 310,210 330,300 250,330 180,300"/>
+        <polygon points="320,210 450,200 460,280 390,310 330,290"/>
+        <polygon points="460,190 590,175 600,260 520,280 465,260"/>
+        <polygon points="600,170 720,170 725,250 645,260 600,245"/>
+        <polygon points="190,310 330,300 340,390 270,420 200,390"/>
+        <polygon points="340,295 460,285 465,370 400,395 345,370"/>
+        <polygon points="465,268 600,258 605,345 535,360 468,342"/>
+        <polygon points="605,248 725,248 728,335 660,345 606,328"/>
+        <polygon points="210,400 340,390 345,470 280,490 215,465"/>
+        <polygon points="348,380 466,370 468,450 410,465 350,445"/>
+        <polygon points="470,355 605,345 607,425 545,435 472,418"/>
+        <polygon points="608,336 729,336 730,410 665,418 610,405"/>
+        <polygon points="100,150 160,140 170,240 120,260 95,220"/>
+        <polygon points="730,100 820,110 818,200 740,195 730,175"/>
+        <polygon points="730,200 818,200 816,290 740,285 730,270"/>
+        <polygon points="740,290 816,290 815,370 740,370"/>
+        <polygon points="90,270 120,260 125,350 90,350"/>
+        <polygon points="90,365 125,355 130,440 92,440"/>
+      </g>
+
+      <!-- Key piazze -->
+      <ellipse cx="430" cy="295" rx="55" ry="38" fill="#D4A574" opacity="0.6"/>
+      <ellipse cx="430" cy="295" rx="52" ry="35" fill="#C9936A" opacity="0.4"/>
+
+      <!-- Streets / via -->
+      <g stroke="#C8B89A" stroke-width="4" fill="none" opacity="0.7">
+        <path d="M150,120 Q250,130 320,180 Q390,230 430,260"/>
+        <path d="M430,260 Q450,280 430,295"/>
+        <path d="M430,295 Q420,320 410,370 Q400,420 390,480"/>
+        <path d="M430,295 Q480,310 540,320 Q620,330 700,340"/>
+        <path d="M430,295 Q380,280 310,260 Q240,240 160,230"/>
+        <path d="M430,295 Q430,250 435,190 Q440,140 450,90"/>
+        <path d="M200,150 Q240,200 290,250 Q350,300 430,295"/>
+        <path d="M650,150 Q640,200 600,240 Q520,270 430,295"/>
+      </g>
+
+      <!-- Animated route path (overlaid) -->
+      <path class="route-path" id="animRoutePath"
+        d="M195,148 Q260,175 320,195 Q375,215 415,268 Q428,285 430,295 Q435,320 432,360 Q429,400 420,445"/>
+
+      <defs>
+        <filter id="grain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+          <feColorMatrix type="saturate" values="0"/>
+          <feBlend in="SourceGraphic" mode="multiply"/>
+        </filter>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- District labels -->
+      <text class="district-label" x="260" y="185" transform="rotate(-8,260,185)">Terzo di Camollia</text>
+      <text class="district-label" x="440" y="420" transform="rotate(-5,440,420)">Terzo di San Martino</text>
+      <text class="district-label" x="590" y="265" transform="rotate(-5,590,265)">Terzo di Città</text>
+
+      <!-- Street labels -->
+      <text class="street-label" x="240" y="158">Via di Camollia</text>
+      <text class="street-label" x="355" y="225">Via Banchi di Sopra</text>
+      <text class="street-label" x="435" y="252" text-anchor="middle">Il Campo</text>
+      <text class="street-label" x="428" y="390" text-anchor="middle">Via di Città</text>
+
+      <!-- STOP 1: Porta Camollia -->
+      <circle class="route-dot-ring" cx="195" cy="148" r="8"/>
+      <circle class="route-dot" cx="195" cy="148" r="7" data-stop="0" onclick="openPanel(0)"/>
+      <text x="210" y="145" font-family="Jost,sans-serif" font-size="10" fill="#8B3A1A" font-weight="400">① Porta Camollia</text>
+
+      <!-- STOP 2: Piazza Salimbeni -->
+      <circle class="route-dot-ring" cx="320" cy="200" r="8" style="animation-delay:0.5s"/>
+      <circle class="route-dot" cx="320" cy="200" r="7" data-stop="1" onclick="openPanel(1)"/>
+      <text x="330" y="196" font-family="Jost,sans-serif" font-size="10" fill="#8B3A1A">② Piazza Salimbeni</text>
+
+      <!-- STOP 3: Piazza del Campo -->
+      <circle class="route-dot-ring" cx="430" cy="295" r="8" style="animation-delay:1s"/>
+      <circle class="route-dot" cx="430" cy="295" r="7" data-stop="2" onclick="openPanel(2)"/>
+      <text x="445" y="291" font-family="Jost,sans-serif" font-size="10" fill="#8B3A1A">③ Piazza del Campo</text>
+
+      <!-- STOP 4: Palazzo Pubblico -->
+      <circle class="route-dot-ring" cx="432" cy="318" r="8" style="animation-delay:1.5s"/>
+      <circle class="route-dot" cx="432" cy="318" r="7" data-stop="3" onclick="openPanel(3)"/>
+      <text x="447" y="314" font-family="Jost,sans-serif" font-size="10" fill="#8B3A1A">④ Palazzo Pubblico</text>
+
+      <!-- STOP 5: Duomo -->
+      <circle class="route-dot-ring" cx="420" cy="445" r="8" style="animation-delay:2s"/>
+      <circle class="route-dot" cx="420" cy="445" r="7" data-stop="4" onclick="openPanel(4)"/>
+      <text x="435" y="441" font-family="Jost,sans-serif" font-size="10" fill="#8B3A1A">⑤ Duomo di Siena</text>
+
+      <!-- compass rose -->
+      <g transform="translate(820,520)" opacity="0.5">
+        <circle r="18" fill="none" stroke="#9A8878" stroke-width="1"/>
+        <text y="-22" text-anchor="middle" font-size="9" fill="#9A8878" font-family="Jost,sans-serif">N</text>
+        <line y1="-15" y2="15" stroke="#9A8878" stroke-width="1"/>
+        <line x1="-15" x2="15" stroke="#9A8878" stroke-width="0.5"/>
+        <polygon points="0,-14 3,0 0,-4 -3,0" fill="#C4622D"/>
+      </g>
+
+      <!-- scale -->
+      <g transform="translate(50,555)" opacity="0.5">
+        <line x2="80" stroke="#9A8878" stroke-width="1"/>
+        <line y1="-4" y2="4" stroke="#9A8878" stroke-width="1"/>
+        <line x1="80" y1="-4" x2="80" y2="4" stroke="#9A8878" stroke-width="1"/>
+        <text x="40" y="-8" text-anchor="middle" font-size="8" fill="#9A8878" font-family="Jost,sans-serif">500 m</text>
+      </g>
+
     </svg>
-    <span class="img-hint">Hauptbild einfügen</span>
   </div>
 
-  <div class="detail-body">
-    <p class="detail-description" id="d-description"></p>
-    <div id="d-facts"></div>
-  </div>
+  <!-- SCROLL CONTENT (layered above map) -->
+  <div class="scroll-content" id="scrollContent">
 
-  <div class="detail-images">
-    <div class="detail-img-slot">
-      <svg class="sketch-svg" width="90" height="55" viewBox="0 0 90 55" fill="none">
-        <rect x="5" y="10" width="80" height="36" stroke="#6b6860" stroke-width="0.7"/>
-        <line x1="5" y1="10" x2="18" y2="2" stroke="#6b6860" stroke-width="0.7"/>
-        <line x1="85" y1="10" x2="98" y2="2" stroke="#6b6860" stroke-width="0.7"/>
-        <line x1="18" y1="2" x2="98" y2="2" stroke="#6b6860" stroke-width="0.7"/>
-      </svg>
-      <span class="img-hint">Bild einfügen</span>
+    <div class="stop-block" data-stop-idx="0">
+      <div class="stop-trigger" onclick="openPanel(0)">
+        <div class="stop-number">01</div>
+        <div class="stop-name">Porta<br>Camollia</div>
+        <div class="stop-subtitle">Das Stadttor des Willkommens</div>
+        <p class="stop-desc">Der nördliche Eingang Sienas — eine Schwelle zwischen Landschaft und Stadt, außen und innen. Hier beginnt die Passeggiata.</p>
+        <button class="open-btn">
+          Mehr erfahren
+          <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="0" y1="5" x2="10" y2="5"/><line x1="5" y1="0" x2="5" y2="10"/></svg>
+        </button>
+      </div>
     </div>
-    <div class="detail-img-slot">
-      <svg class="sketch-svg" width="90" height="55" viewBox="0 0 90 55" fill="none">
-        <circle cx="45" cy="27" r="20" stroke="#6b6860" stroke-width="0.7"/>
-        <line x1="45" y1="7" x2="45" y2="47" stroke="#6b6860" stroke-width="0.5" stroke-dasharray="3 3"/>
-        <line x1="25" y1="27" x2="65" y2="27" stroke="#6b6860" stroke-width="0.5" stroke-dasharray="3 3"/>
-      </svg>
-      <span class="img-hint">Bild einfügen</span>
-    </div>
-    <div class="detail-img-slot">
-      <svg class="sketch-svg" width="90" height="55" viewBox="0 0 90 55" fill="none">
-        <rect x="8" y="5" width="32" height="45" stroke="#6b6860" stroke-width="0.7"/>
-        <rect x="50" y="18" width="32" height="32" stroke="#6b6860" stroke-width="0.7"/>
-      </svg>
-      <span class="img-hint">Bild einfügen</span>
-    </div>
-    <div class="detail-img-slot">
-      <svg class="sketch-svg" width="90" height="55" viewBox="0 0 90 55" fill="none">
-        <polygon points="45,4 86,51 4,51" stroke="#6b6860" stroke-width="0.7" fill="none"/>
-        <line x1="45" y1="4" x2="45" y2="51" stroke="#6b6860" stroke-width="0.5" stroke-dasharray="2 3"/>
-      </svg>
-      <span class="img-hint">Bild einfügen</span>
-    </div>
-  </div>
 
-</div><!-- /page-detail -->
+    <div class="stop-block right" data-stop-idx="1">
+      <div class="stop-trigger" onclick="openPanel(1)">
+        <div class="stop-number">02</div>
+        <div class="stop-name">Piazza<br>Salimbeni</div>
+        <div class="stop-subtitle">Macht und Memoria</div>
+        <p class="stop-desc">Ein Platz, der drei Epochen des Palazzo-Baus vereint — gotisch, Renaissance, Barock — und dennoch eine ruhige Einheit bildet.</p>
+        <button class="open-btn">
+          Mehr erfahren
+          <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="0" y1="5" x2="10" y2="5"/><line x1="5" y1="0" x2="5" y2="10"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="stop-block" data-stop-idx="2">
+      <div class="stop-trigger" onclick="openPanel(2)">
+        <div class="stop-number">03</div>
+        <div class="stop-name">Piazza<br>del Campo</div>
+        <div class="stop-subtitle">Das Herz der Stadt</div>
+        <p class="stop-desc">Der muschelförmige Platz — einer der schönsten mittelalterlichen Stadträume Europas. Neun Segmente, neun Contrade, ein Zentrum.</p>
+        <button class="open-btn">
+          Mehr erfahren
+          <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="0" y1="5" x2="10" y2="5"/><line x1="5" y1="0" x2="5" y2="10"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="stop-block right" data-stop-idx="3">
+      <div class="stop-trigger" onclick="openPanel(3)">
+        <div class="stop-number">04</div>
+        <div class="stop-name">Palazzo<br>Pubblico</div>
+        <div class="stop-subtitle">Architektur als politisches Manifest</div>
+        <p class="stop-desc">Das Rathaus als steinernes Bekenntnis zur Commune. Der Torre del Mangia — 102 Meter — überragt die Skyline der Stadt als weltliche Macht.</p>
+        <button class="open-btn">
+          Mehr erfahren
+          <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="0" y1="5" x2="10" y2="5"/><line x1="5" y1="0" x2="5" y2="10"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="stop-block" data-stop-idx="4">
+      <div class="stop-trigger" onclick="openPanel(4)">
+        <div class="stop-number">05</div>
+        <div class="stop-name">Duomo<br>di Siena</div>
+        <div class="stop-subtitle">Marmor, Licht und Ambiton</div>
+        <p class="stop-desc">Die Kathedrale als Kristallisation städtischen Ehrgeizes — ein Bau, der sich selbst überbieten wollte und im Fragment verharrte.</p>
+        <button class="open-btn">
+          Mehr erfahren
+          <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="0" y1="5" x2="10" y2="5"/><line x1="5" y1="0" x2="5" y2="10"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- OUTRO -->
+<section class="outro">
+  <h2>La città è un libro.<br>Leggerla è già viaggiare.</h2>
+  <p>Siena ist mehr als eine Ansammlung von Bauwerken. Sie ist ein kohärentes räumliches Narrativ — eine Stadt, die man liest, indem man sie geht.</p>
+  <div class="outro-dot"></div>
+</section>
+
+<!-- OVERLAY BACKDROP -->
+<div class="overlay-backdrop" id="backdrop" onclick="closePanel()"></div>
+
+<!-- OVERLAY PANEL -->
+<div class="overlay-panel" id="overlayPanel">
+  <button class="panel-close" onclick="closePanel()">✕</button>
+  <div id="panelContent"></div>
+</div>
 
 <script>
-/* ─── PROJECT DATA ─── */
-const projects = [
+const stops = [
   {
-    type: 'Wohnungsbau — Studio',
-    title: 'Haus im Wald',
-    year: '2024',
-    description: 'Ein Einfamilienhaus eingebettet in einen Laubwald. Das Projekt untersucht die Beziehung zwischen Innen und Außen — wie Tageslicht durch Baumkronen gefiltert den Wohnraum prägt. Konstruktion aus Sichtbeton und rohem Holz, das sich über die Jahre der Landschaft angleicht.',
+    num: "01",
+    name: "Porta Camollia",
+    sub: "Das Stadttor des Willkommens",
+    icon: "🏛️",
+    imgLabel: "Porta Camollia, Nordeingang der Stadt",
+    text: "Porta Camollia ist das nördlichste Stadttor Sienas und trägt die berühmte Inschrift: „Cor magis tibi Sena pandit" — „Siena öffnet dir sein Herz noch weiter als dieses Tor." Die heutige Gestalt stammt aus dem 17. Jahrhundert, doch die Stelle markiert seit dem Mittelalter den Beginn der Via Francigena — jener Pilgerroute, die Canterbury mit Rom verband. Hier endet die Offenheit der toskanischen Landschaft, und die Enge der mittelalterlichen Gassen beginnt.",
     facts: [
-      { label: 'Typus', value: 'Einfamilienhaus' },
-      { label: 'Ort', value: '[Stadt, Land]' },
-      { label: 'Fläche', value: '180 m²' },
-      { label: 'Semester', value: '5. Semester' },
-      { label: 'Betreuer', value: '[Prof. Name]' },
+      { label: "Stil", value: "Manierismus, 1604" },
+      { label: "Lage", value: "Terzo di Camollia" },
+      { label: "Funktion", value: "Stadttor / Eingang" },
+      { label: "Route", value: "Start der Passeggiata" },
     ]
   },
   {
-    type: 'Öffentlicher Bau — Entwurf',
-    title: 'Bibliothek am Fluss',
-    year: '2024',
-    description: 'Eine öffentliche Bibliothek als durchlässiger Sockel am Flussufer. Der Bau lädt die Stadt ein, den Fluss wieder als Lebensraum zu entdecken. Großformatige Fenster schaffen Blickbeziehungen zwischen Lesen, Wasser und Bewegung.',
+    num: "02",
+    name: "Piazza Salimbeni",
+    sub: "Macht und Memoria",
+    icon: "🏦",
+    imgLabel: "Piazza Salimbeni mit dem Palazzo Salimbeni",
+    text: "Die Piazza Salimbeni versammelt drei Jahrhunderte Palastarchitektur in erstaunlicher Harmonie. Das gotische Palazzo Salimbeni, das Renaissance-Palazzo Spannocchi und das Barockgebäude Palazzo Tantucci bilden drei Seiten eines stillen, fast klösterlich wirkenden Platzes. Seit dem 14. Jahrhundert residiert hier die Monte dei Paschi di Siena — die älteste noch aktive Bank der Welt. Der Raum ist Zeugnis dafür, wie städtischer Reichtum in Stein verwandelt wird.",
     facts: [
-      { label: 'Typus', value: 'Öffentliche Bibliothek' },
-      { label: 'Ort', value: '[Stadt, Land]' },
-      { label: 'Fläche', value: '2.400 m²' },
-      { label: 'Semester', value: '6. Semester' },
-      { label: 'Betreuer', value: '[Prof. Name]' },
+      { label: "Gegründet", value: "14. Jhd." },
+      { label: "Besonderheit", value: "3 Baustile, 1 Raum" },
+      { label: "Nutzung", value: "Bankpalast / Platz" },
+      { label: "Stil", value: "Gotik → Barock" },
     ]
   },
   {
-    type: 'Städtebau — Semesterarbeit',
-    title: 'Urbane Verdichtung',
-    year: '2023',
-    description: 'Ein städtebauliches Konzept für ein brachliegendes Industrieareal. Die Planung schlägt eine sanfte Verdichtung durch kleinteilige Typologien vor — Wohnen, Arbeiten und Gemeinschaft zu einem neuen Stadtgefüge verwoben.',
+    num: "03",
+    name: "Piazza del Campo",
+    sub: "Das Herz der Stadt",
+    icon: "🐚",
+    imgLabel: "Die muschelförmige Piazza del Campo von oben",
+    text: "Die Piazza del Campo gilt als einer der bedeutendsten mittelalterlichen Stadträume der Welt. Ihre unverwechselbare Muschelform entstand durch natürliche Topografie und bewusste stadtplanerische Entscheidungen des 13. Jahrhunderts. Neun radiale Segmente aus Ziegelstein symbolisieren die neun Mitglieder des damaligen Stadtrats — eine in Stein codierte Verfassung. Zweimal im Jahr verwandelt sich der Platz beim Palio in eine Arena: Pferderennen als kollektives Gedächtnis.",
     facts: [
-      { label: 'Typus', value: 'Städtebau' },
-      { label: 'Ort', value: '[Stadt, Land]' },
-      { label: 'Areal', value: '4,5 ha' },
-      { label: 'Semester', value: '4. Semester' },
-      { label: 'Betreuer', value: '[Prof. Name]' },
+      { label: "Fläche", value: "ca. 5.000 m²" },
+      { label: "Entstehung", value: "13.–14. Jhd." },
+      { label: "UNESCO", value: "Welterbe seit 1995" },
+      { label: "Event", value: "Palio di Siena" },
     ]
   },
   {
-    type: 'Installation — Materialstudie',
-    title: 'Licht und Schatten',
-    year: '2023',
-    description: 'Eine temporäre Installation, die mit dem Verlauf des Tageslichts interagiert. Perforierte Metallplatten werfen über den Tag wechselnde Schattenmuster auf den Boden — Architektur als vergängliches Phänomen.',
+    num: "04",
+    name: "Palazzo Pubblico",
+    sub: "Architektur als politisches Manifest",
+    icon: "⚔️",
+    imgLabel: "Palazzo Pubblico und Torre del Mangia",
+    text: "Der Palazzo Pubblico (1297–1310) steht nicht zufällig am Campo: Er markiert die weltliche Autorität der Comune gegenüber der kirchlichen Macht des Doms. Die schlanke Torre del Mangia misst 102 Meter — bewusst auf Augenhöhe mit dem Campanile des Doms entworfen. Im Inneren befindet sich Ambrogio Lorenzettis Freskenzykus „Allegorie der guten und schlechten Regierung" (1338–40) — ein frühes Stadtbild Europas und zugleich politische Theorie in Farbe.",
     facts: [
-      { label: 'Typus', value: 'Installation' },
-      { label: 'Material', value: 'Cortenstahl, perforiert' },
-      { label: 'Maße', value: '3 × 3 × 4 m' },
-      { label: 'Semester', value: '3. Semester' },
-      { label: 'Betreuer', value: '[Prof. Name]' },
+      { label: "Erbaut", value: "1297–1310" },
+      { label: "Turm", value: "102 m hoch" },
+      { label: "Fresko", value: "Lorenzetti, 1338" },
+      { label: "Stil", value: "Gotik, Backstein" },
+    ]
+  },
+  {
+    num: "05",
+    name: "Duomo di Siena",
+    sub: "Marmor, Licht und Ambition",
+    icon: "⛪",
+    imgLabel: "Fassade des Duomo di Siena in weiß-schwarz-grünem Marmor",
+    text: "Der Dom ist ein Monument städtischen Ehrgeizes. Im 14. Jahrhundert plante Siena, das Mittelschiff zur Querhalle eines noch größeren Neubaus umzufunktionieren — eines Baus, der den Mailänder Dom übertreffen sollte. Die Pest von 1348 stoppte alles. Was blieb, sind die leeren Arkaden des „Duomo Nuovo" als steinfernes Zeugnis unerfüllter Ambition. Die Fassade aus weißem, grünem und rotem Marmor ist ein frühgotisches Meisterwerk — lichtvoll, plastisch, präzise komponiert.",
+    facts: [
+      { label: "Baubeginn", value: "ca. 1215" },
+      { label: "Fassade", value: "Giovanni Pisano" },
+      { label: "Boden", value: "56 Intarsien-Tafeln" },
+      { label: "Unvollendet", value: "Erweiterung 1339" },
     ]
   }
 ];
 
-/* ─── LOADER ─── */
-(function () {
-  const nameEl = document.getElementById('loader-name');
-  'Nils Kuhlow'.split('').forEach((ch, i) => {
-    const s = document.createElement('span');
-    s.textContent = ch === ' ' ? '\u00A0' : ch;
-    s.style.animationDelay = `${0.05 + i * 0.055}s`;
-    nameEl.appendChild(s);
-  });
-  setTimeout(() => {
-    document.getElementById('loader').classList.add('done');
-    setTimeout(() => document.getElementById('loader').style.display = 'none', 900);
-  }, 1900);
-})();
+function openPanel(idx) {
+  const s = stops[idx];
+  document.getElementById('panelContent').innerHTML = `
+    <div class="panel-img-placeholder">
+      <div class="panel-img-icon">${s.icon}</div>
+      <div class="panel-img-label">${s.imgLabel}</div>
+    </div>
+    <div class="panel-body">
+      <div class="panel-stop-num">Station ${s.num}</div>
+      <div class="panel-title">${s.name}</div>
+      <span class="panel-ital">${s.sub}</span>
+      <div class="panel-divider"></div>
+      <p class="panel-text">${s.text}</p>
+      <div class="panel-facts">
+        ${s.facts.map(f => `
+          <div class="fact-item">
+            <div class="fact-label">${f.label}</div>
+            <div class="fact-value">${f.value}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  document.getElementById('overlayPanel').classList.add('active');
+  document.getElementById('backdrop').classList.add('active');
+}
 
-/* ─── CURSOR ─── */
-const $cur = document.getElementById('cursor');
-const $ring = document.getElementById('cursor-ring');
-let mx = 0, my = 0, rx = 0, ry = 0;
-document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-(function loop() {
-  $cur.style.left  = mx + 'px'; $cur.style.top  = my + 'px';
-  rx += (mx - rx) * 0.14;       ry += (my - ry) * 0.14;
-  $ring.style.left = rx + 'px'; $ring.style.top = ry + 'px';
-  requestAnimationFrame(loop);
-})();
-document.querySelectorAll('a,button,.project-item,.edu-item,.skills-list li').forEach(el => {
-  el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-  el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+function closePanel() {
+  document.getElementById('overlayPanel').classList.remove('active');
+  document.getElementById('backdrop').classList.remove('active');
+}
+
+// Progress bar + nav
+const navDotsEl = document.getElementById('navDots');
+stops.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'nav-dot';
+  d.onclick = () => openPanel(i);
+  navDotsEl.appendChild(d);
 });
 
-/* ─── NAV SCROLL ─── */
-const nav = document.getElementById('main-nav');
-window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 40));
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docH = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = (scrollTop / docH) * 100;
+  document.getElementById('progressBar').style.width = progress + '%';
 
-/* ─── SCROLL REVEAL ─── */
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
-}, { threshold: 0.1 });
-function bindReveals() { document.querySelectorAll('.reveal:not(.visible)').forEach(el => io.observe(el)); }
-bindReveals();
+  // Nav title
+  const navTitle = document.getElementById('navTitle');
+  if (scrollTop > 80) navTitle.classList.add('visible');
+  else navTitle.classList.remove('visible');
 
-/* ─── NAVIGATION ─── */
-function showProject(e, idx) {
-  e.preventDefault();
-  const p = projects[idx];
-  document.getElementById('d-type').textContent = p.type;
-  document.getElementById('d-title').textContent = p.title;
-  document.getElementById('d-year').textContent = p.year;
-  document.getElementById('d-description').textContent = p.description;
-  document.getElementById('d-facts').innerHTML = p.facts.map(f =>
-    `<div class="detail-fact"><span class="fact-label">${f.label}</span><span class="fact-value">${f.value}</span></div>`
-  ).join('');
+  // Active nav dot based on scroll
+  const blocks = document.querySelectorAll('.stop-block');
+  const dots = document.querySelectorAll('.nav-dot');
+  blocks.forEach((b, i) => {
+    const rect = b.getBoundingClientRect();
+    dots[i].classList.toggle('active', rect.top < window.innerHeight * 0.6 && rect.bottom > 0);
+  });
+});
 
-  document.getElementById('page-home').classList.remove('active');
-  const det = document.getElementById('page-detail');
-  det.classList.add('active');
-  det.classList.remove('page-enter');
-  void det.offsetWidth; // reflow
-  det.classList.add('page-enter');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function showHome(e) {
-  e.preventDefault();
-  document.getElementById('page-detail').classList.remove('active');
-  const home = document.getElementById('page-home');
-  home.classList.add('active');
-  home.classList.remove('page-enter');
-  void home.offsetWidth;
-  home.classList.add('page-enter');
-  window.scrollTo({ top: 0 });
-  setTimeout(bindReveals, 60);
-}
-
-function smoothTo(id) {
-  setTimeout(() => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 90);
-}
+// Keyboard close
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
 </script>
 </body>
 </html>
