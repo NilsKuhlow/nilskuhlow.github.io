@@ -191,6 +191,129 @@ body {
 }
 
 /* ─────────────────────────────────────────
+   LOADER
+───────────────────────────────────────── */
+#loader {
+  position:fixed; inset:0;
+  display:grid; place-items:center;
+  background:var(--ink);
+  z-index:1000;
+  transition:opacity 1s ease, visibility 1s ease;
+}
+#loader.is-hidden {
+  opacity:0; visibility:hidden; pointer-events:none;
+}
+.loader-inner {
+  width:min(78vw,680px);
+  display:flex; flex-direction:column;
+  align-items:center; gap:2.4rem;
+  transform:translateY(-2vh);
+}
+.campo-wrap {
+  width:min(72vw,520px);
+  aspect-ratio:1.7/1;
+}
+.segment {
+  fill:none;
+  stroke:var(--terra);
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-dasharray:320;
+  stroke-dashoffset:320;
+  animation:drawSegment 1.4s cubic-bezier(0.65,0,0.2,1) forwards;
+}
+.segment:nth-child(1)  { animation-delay:.05s; }
+.segment:nth-child(2)  { animation-delay:.10s; }
+.segment:nth-child(3)  { animation-delay:.15s; }
+.segment:nth-child(4)  { animation-delay:.20s; }
+.segment:nth-child(5)  { animation-delay:.25s; }
+.segment:nth-child(6)  { animation-delay:.30s; }
+.segment:nth-child(7)  { animation-delay:.35s; }
+.segment:nth-child(8)  { animation-delay:.40s; }
+.segment:nth-child(9)  { animation-delay:.45s; }
+.segment:nth-child(10) { animation-delay:.50s; }
+@keyframes drawSegment {
+  0%   { stroke-dashoffset:320; opacity:.2; }
+  100% { stroke-dashoffset:0;   opacity:1;  }
+}
+.loader-title {
+  margin:0;
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;
+  font-size:clamp(2.6rem,7vw,5.6rem);
+  letter-spacing:.04em;
+  color:var(--cream);
+  opacity:0; transform:translateY(18px);
+  animation:revealText .8s cubic-bezier(0.22,1,0.36,1) forwards;
+  animation-delay:.95s;
+}
+.loader-title em { font-style:italic; color:var(--terra); }
+@keyframes revealText {
+  0%   { opacity:0; transform:translateY(18px); }
+  100% { opacity:1; transform:translateY(0);    }
+}
+
+/* ─────────────────────────────────────────
+   MOBILE  ≤ 768 px — portrait
+───────────────────────────────────────── */
+@media (max-width:768px) {
+  /* Map becomes a sticky strip at the top */
+  #map-panel {
+    position:sticky !important;
+    top:0; left:0;
+    width:100vw !important;
+    height:48vw !important;
+    min-height:200px; max-height:300px;
+    z-index:50;
+  }
+
+  /* Journey: normal document flow, no fixed height */
+  #journey { height:auto !important; }
+
+  /* Scroll col: full width, stacked */
+  #scroll-col {
+    position:static !important;
+    left:0 !important;
+    width:100% !important;
+  }
+
+  /* Each stop: auto height, comfortable padding */
+  .stop-section {
+    height:auto !important;
+    padding:2.5rem 7vw 2.5rem !important;
+    border-bottom:1px solid rgba(196,98,45,.15);
+  }
+
+  /* Cards always visible on mobile */
+  .stop-card {
+    max-width:100% !important;
+    opacity:1 !important;
+    transform:none !important;
+    pointer-events:all !important;
+  }
+
+  /* Smaller type on small screens */
+  .card-index { font-size:3.8rem; }
+  .card-name  { font-size:1.75rem; }
+
+  /* Intro tweaks */
+  .intro h1 { font-size:clamp(4rem,18vw,7rem); }
+  .intro-sub { font-size:.95rem; }
+  .scroll-cue { right:5vw; }
+
+  /* Outro */
+  .outro { padding:10vh 7vw; }
+  .outro h2 { font-size:clamp(1.5rem,6vw,2.5rem); }
+
+  /* Modal full-screen on mobile */
+  .modal { width:100vw !important; }
+
+  /* Nav crumb smaller */
+  .crumb-city { font-size:.85rem; }
+  .crumb-stop { font-size:.58rem; }
+}
+
+/* ─────────────────────────────────────────
    UI CHROME
 ───────────────────────────────────────── */
 #progress-bar {
@@ -290,6 +413,25 @@ body {
 </head>
 <body>
 
+<!-- ═══ LOADER ═══ -->
+<div id="loader">
+  <div class="loader-inner">
+    <svg class="campo-wrap" viewBox="0 0 600 360" aria-hidden="true">
+      <path class="segment" d="M300 320 Q184 286 58 236" />
+      <path class="segment" d="M300 320 Q200 278 88 206" />
+      <path class="segment" d="M300 320 Q220 270 126 174" />
+      <path class="segment" d="M300 320 Q244 260 176 144" />
+      <path class="segment" d="M300 320 Q272 248 244 118" />
+      <path class="segment" d="M300 320 Q328 248 356 118" />
+      <path class="segment" d="M300 320 Q356 260 424 144" />
+      <path class="segment" d="M300 320 Q380 270 474 174" />
+      <path class="segment" d="M300 320 Q400 278 512 206" />
+      <path class="segment" d="M300 320 Q416 286 542 236" />
+    </svg>
+    <h1 class="loader-title">Sie<em>na</em></h1>
+  </div>
+</div>
+
 <!-- Chrome -->
 <div id="progress-bar"></div>
 <div class="nav-crumb" id="navCrumb">
@@ -374,12 +516,12 @@ body {
     <circle class="stop-ring" cx="350" cy="330" r="15"/>
     <circle class="stop-ring" cx="340" cy="448" r="15"/>
 
-    <!-- Clickable dots -->
-    <circle class="stop-dot" id="dot0" cx="148" cy="92"  r="7" onclick="openModal(0)"/>
-    <circle class="stop-dot" id="dot1" cx="262" cy="158" r="7" onclick="openModal(1)"/>
-    <circle class="stop-dot" id="dot2" cx="350" cy="290" r="7" onclick="openModal(2)"/>
-    <circle class="stop-dot" id="dot3" cx="350" cy="330" r="7" onclick="openModal(3)"/>
-    <circle class="stop-dot" id="dot4" cx="340" cy="448" r="7" onclick="openModal(4)"/>
+    <!-- Clickable dots — click scrolls to that station -->
+    <circle class="stop-dot" id="dot0" cx="148" cy="92"  r="7" onclick="scrollToStop(0)"/>
+    <circle class="stop-dot" id="dot1" cx="262" cy="158" r="7" onclick="scrollToStop(1)"/>
+    <circle class="stop-dot" id="dot2" cx="350" cy="290" r="7" onclick="scrollToStop(2)"/>
+    <circle class="stop-dot" id="dot3" cx="350" cy="330" r="7" onclick="scrollToStop(3)"/>
+    <circle class="stop-dot" id="dot4" cx="340" cy="448" r="7" onclick="scrollToStop(4)"/>
 
     <!-- District labels -->
     <text class="lbl-district" x="145" y="172" transform="rotate(-8,145,172)">Terzo di Camollia</text>
@@ -501,6 +643,37 @@ body {
 </div>
 
 <script>
+/* ── LOADER ── */
+const loader = document.getElementById('loader');
+setTimeout(() => loader.classList.add('is-hidden'), 2400);
+
+/* ── SCROLL TO STOP ── */
+function scrollToStop(idx) {
+  const sec = document.getElementById('sec' + idx);
+  if (!sec) return;
+  const isMob = window.innerWidth <= 768;
+  if (isMob) {
+    /* On mobile the map is sticky; just scroll section into view */
+    sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    /* Desktop: section sits inside #journey which is after .intro.
+       Compute absolute top of that section and scroll there. */
+    const journey = document.getElementById('journey');
+    const journeyTop = journey.getBoundingClientRect().top + window.scrollY;
+    const sectionTop = journeyTop + idx * window.innerHeight;
+    window.scrollTo({ top: sectionTop, behavior: 'smooth' });
+  }
+}
+
+/* ── MOBILE: show all cards immediately ── */
+function applyMobileCards() {
+  if (window.innerWidth <= 768) {
+    document.querySelectorAll('.stop-card').forEach(c => c.classList.add('active'));
+  }
+}
+applyMobileCards();
+window.addEventListener('resize', applyMobileCards);
+
 /* ── DATA ── */
 const STOPS = [
   {
