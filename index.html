@@ -271,88 +271,98 @@ body {
 ───────────────────────────────────────── */
 @media (max-width:768px) {
 
-  /* ── Map: always fixed, top half of screen ── */
+  /* ── Map: always fixed, top portion of screen ── */
   #map-panel {
     position: fixed !important;
     top: 0 !important; left: 0 !important;
     width: 100vw !important;
     height: 55vh !important;
     z-index: 5 !important;
-    opacity: 1 !important;        /* always visible after intro */
+    opacity: 1 !important;
     pointer-events: all !important;
     background: #EDE3CF !important;
   }
-  /* Keep map hidden during intro on mobile too */
   #map-panel.mob-hidden {
     opacity: 0 !important;
     pointer-events: none !important;
   }
 
-  /* ── Journey: spacer so content scrolls below map ── */
+  /* ── Journey: full scroll height, starts right after map ── */
   #journey {
     height: calc(5 * 100vh) !important;
     position: relative !important;
-    margin-top: 55vh !important; /* push below fixed map */
+    margin-top: 0 !important;
+    /* No gap — drawer fills the space below the map */
   }
 
-  /* ── Scroll col: hidden on mobile — drawer replaces it ── */
+  /* Body gets padding-top = map height so journey starts at map bottom */
+  body.journey-active {
+    padding-top: 55vh;
+  }
+
+  /* ── Scroll col: hidden on mobile ── */
   #scroll-col { display: none !important; }
 
-  /* ── Outro: needs margin too ── */
+  /* ── Outro ── */
   .outro { margin-top: 0; }
 
-  /* ── Bottom drawer ── */
+  /* ── Bottom drawer: sits right at bottom of map ── */
   #mob-drawer {
     display: block;
     position: fixed;
-    bottom: 0; left: 0; right: 0;
+    /* sits flush below the map */
+    top: 55vh; left: 0; right: 0;
     z-index: 60;
-    transform: translateY(100%);
-    transition: transform .45s cubic-bezier(.77,0,.175,1);
+    transform: translateY(-100%);
+    opacity: 0;
+    transition: transform .4s cubic-bezier(.77,0,.175,1), opacity .3s ease;
+    pointer-events: none;
   }
   #mob-drawer.open {
     transform: translateY(0);
+    opacity: 1;
+    pointer-events: all;
   }
 
   .mob-drawer-handle {
-    /* tap anywhere on handle to open modal */
     background: var(--cream);
     border-top: 2px solid var(--terra);
-    padding: .9rem 5vw .7rem;
+    padding: .85rem 5vw .75rem;
     display: flex; align-items: center; justify-content: space-between;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 -4px 20px rgba(26,18,9,.08);
   }
   .mob-drawer-handle-left {
-    display: flex; flex-direction: column; gap: .15rem;
+    display: flex; flex-direction: column; gap: .12rem;
   }
   .mob-handle-num {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: .75rem; letter-spacing: .2em;
+    font-size: .72rem; letter-spacing: .2em;
     color: var(--terra); line-height: 1;
   }
   .mob-handle-name {
     font-family: 'Cormorant Garamond', serif;
-    font-weight: 600; font-size: 1.25rem; line-height: 1.1;
+    font-weight: 600; font-size: 1.2rem; line-height: 1.1;
     color: var(--ink);
   }
   .mob-handle-sub {
     font-family: 'Cormorant Garamond', serif;
-    font-style: italic; font-size: .8rem;
+    font-style: italic; font-size: .78rem;
     color: var(--muted);
   }
   .mob-drawer-arrow {
     font-family: 'Jost', sans-serif;
-    font-size: .65rem; letter-spacing: .18em; text-transform: uppercase;
+    font-size: .62rem; letter-spacing: .18em; text-transform: uppercase;
     color: var(--terra);
     border: 1px solid var(--terra);
-    padding: .45rem .9rem;
+    padding: .42rem .85rem;
     white-space: nowrap;
     flex-shrink: 0;
   }
 
-  /* ── Intro tweaks ── */
-  .intro { z-index: 20; } /* above map during intro */
+  /* ── Intro ── */
+  .intro { z-index: 20; }
   .intro h1 { font-size: clamp(4rem, 18vw, 7rem); }
   .intro-sub { font-size: .95rem; }
   .scroll-cue { right: 5vw; }
@@ -361,15 +371,15 @@ body {
   .outro { padding: 10vh 7vw; }
   .outro h2 { font-size: clamp(1.5rem, 6vw, 2.5rem); }
 
-  /* ── Modal full-screen on mobile ── */
+  /* ── Modal full-screen ── */
   .modal { width: 100vw !important; }
 
-  /* ── Nav crumb smaller ── */
+  /* ── Nav crumb ── */
   .crumb-city { font-size: .85rem; }
   .crumb-stop { font-size: .58rem; }
 
-  /* ── Stop counter: position above drawer ── */
-  #stop-counter { bottom: 5rem; left: 1rem; }
+  /* ── Stop counter above drawer ── */
+  #stop-counter { bottom: 5.5rem; left: 1rem; font-size: .85rem; }
 }
 
 /* ─────────────────────────────────────────
@@ -514,7 +524,7 @@ body {
 
 <!-- ═══ FIXED MAP ═══ -->
 <div id="map-panel">
-  <svg id="mapSvg" viewBox="0 0 620 700" preserveAspectRatio="xMidYMid meet">
+  <svg id="mapSvg" viewBox="48 0 240 272" preserveAspectRatio="xMidYMid meet">
 
     <!-- City fabric -->
     <g class="city-block">
@@ -560,6 +570,13 @@ body {
 
     <!-- Live drawn trail -->
     <path class="route-trail" id="routeTrail" d=""/>
+
+    <!-- Smooth-moving traveller dot -->
+    <circle id="traveller" cx="148" cy="92" r="6"
+      fill="var(--terra)"
+      filter="drop-shadow(0 0 5px rgba(196,98,45,.9))"
+      opacity="0"
+      style="transition: opacity .3s ease;"/>
 
     <!-- Ripple rings -->
     <circle id="rp0" cx="148" cy="92"  r="9" fill="none" stroke="var(--terra)" stroke-width="1.5" opacity="0"/>
@@ -826,15 +843,15 @@ const TRAIL = [
   "M148,92 Q205,118 262,158 Q305,192 340,268 Q346,280 350,290 Q352,308 350,330 Q348,390 340,448"
 ];
 
-/* ViewBox per stop */
+/* ViewBox per stop — centered on each waypoint */
 const VB = [
-  "20  5 280 320",
-  "100 55 310 360",
-  "195 182 275 322",
-  "200 205 272 318",
-  "192 325 265 298"
+  "48  0 240 272",    /* 0 Porta Camollia  — centered on 148,92  */
+  "112 42 290 330",   /* 1 Piazza Salimbeni */
+  "200 185 265 300",  /* 2 Il Campo        */
+  "205 208 260 296",  /* 3 Palazzo Pubblico */
+  "195 328 258 292"   /* 4 Duomo di Siena  */
 ];
-const VB0 = "0 0 620 700";
+const VB0 = "48 0 240 272"; /* start centered on stop 0 */
 
 /* ── ViewBox animation ── */
 function animVB(target) {
@@ -856,6 +873,43 @@ let activeStop = -1;
 
 function isMob() { return window.innerWidth <= 768; }
 
+/* Route waypoints — same coordinates as the TRAIL paths */
+const WAYPOINTS = [
+  {x:148, y:92},
+  {x:262, y:158},
+  {x:350, y:290},
+  {x:350, y:330},
+  {x:340, y:448}
+];
+
+/* Lerp between two waypoints */
+function lerpWP(a, b, t) {
+  return { x: a.x + (b.x - a.x)*t, y: a.y + (b.y - a.y)*t };
+}
+
+/* Move the traveller dot to an interpolated position between stops */
+function moveTraveller(stopIdx, frac) {
+  const trav = document.getElementById('traveller');
+  trav.style.opacity = '1';
+  let pos;
+  if (frac <= 0 || stopIdx === 0) {
+    pos = WAYPOINTS[stopIdx];
+  } else {
+    const from = WAYPOINTS[stopIdx];
+    const to   = stopIdx < 4 ? WAYPOINTS[stopIdx + 1] : WAYPOINTS[4];
+    pos = lerpWP(from, to, Math.min(frac, 1));
+  }
+  trav.setAttribute('cx', pos.x);
+  trav.setAttribute('cy', pos.y);
+}
+
+/* ViewBox: lerp between two viewbox states */
+function lerpVB(a, b, t) {
+  const pa = a.split(' ').map(Number);
+  const pb = b.split(' ').map(Number);
+  return pa.map((v,i) => v + (pb[i]-v)*t).join(' ');
+}
+
 function updateDrawer(idx) {
   if (!isMob()) return;
   const s = STOPS[idx];
@@ -869,46 +923,62 @@ function hideDrawer() {
   document.getElementById('mob-drawer').classList.remove('open');
 }
 
-function activate(idx) {
-  if (idx === activeStop) return;
-  activeStop = idx;
+function activate(idx, frac) {
+  /* Always update traveller smoothly */
+  moveTraveller(idx, frac || 0);
 
-  document.getElementById('routeTrail').setAttribute('d', TRAIL[idx]);
+  /* Only do heavy updates when stop index changes */
+  if (idx !== activeStop) {
+    activeStop = idx;
 
-  for (let i = 0; i < 5; i++) {
-    const d = document.getElementById('dot'+i);
-    d.classList.toggle('visited',    i < idx);
-    d.classList.toggle('active-dot', i === idx);
-    d.setAttribute('r', i === idx ? '9' : '7');
+    document.getElementById('routeTrail').setAttribute('d', TRAIL[idx]);
 
-    const r = document.getElementById('rp'+i);
-    r.style.animation = 'none'; r.style.opacity = '0';
+    for (let i = 0; i < 5; i++) {
+      const d = document.getElementById('dot'+i);
+      d.classList.toggle('visited',    i < idx);
+      d.classList.toggle('active-dot', i === idx);
+      d.setAttribute('r', i === idx ? '9' : '7');
 
-    if (!isMob()) {
-      document.getElementById('card'+i).classList.toggle('active', i === idx);
+      const r = document.getElementById('rp'+i);
+      r.style.animation = 'none'; r.style.opacity = '0';
+
+      if (!isMob()) {
+        document.getElementById('card'+i).classList.toggle('active', i === idx);
+      }
     }
+
+    const ar = document.getElementById('rp'+idx);
+    ar.style.opacity = '1';
+    void ar.offsetWidth;
+    ar.style.animation = 'ripple-anim 1.9s ease-out infinite';
+
+    document.getElementById('navCrumb').classList.add('show');
+    document.getElementById('crumbStop').textContent = STOPS[idx].name;
+
+    const ctr = document.getElementById('stop-counter');
+    ctr.textContent = `0${idx+1} / 05`;
+    ctr.classList.add('show');
+
+    updateDrawer(idx);
   }
 
-  const ar = document.getElementById('rp'+idx);
-  ar.style.opacity = '1';
-  void ar.offsetWidth;
-  ar.style.animation = 'ripple-anim 1.9s ease-out infinite';
-
-  document.getElementById('navCrumb').classList.add('show');
-  document.getElementById('crumbStop').textContent = STOPS[idx].name;
-
-  const ctr = document.getElementById('stop-counter');
-  ctr.textContent = `0${idx+1} / 05`;
-  ctr.classList.add('show');
-
-  animVB(VB[idx]);
-  updateDrawer(idx);
+  /* ViewBox: interpolate toward next stop while scrolling between stops */
+  if (!isMob() || frac === undefined) {
+    animVB(VB[idx]);
+  } else {
+    /* On mobile: set viewBox directly to follow traveller without animation lag */
+    const current = VB[idx];
+    const next    = idx < 4 ? VB[idx+1] : VB[4];
+    const svg = document.getElementById('mapSvg');
+    svg.setAttribute('viewBox', lerpVB(current, next, Math.min(frac, 1)));
+  }
 }
 
 function resetAll() {
   if (activeStop === -1) return;
   activeStop = -1;
   document.getElementById('routeTrail').setAttribute('d', '');
+  document.getElementById('traveller').style.opacity = '0';
   for (let i = 0; i < 5; i++) {
     document.getElementById('dot'+i).classList.remove('visited','active-dot');
     document.getElementById('dot'+i).setAttribute('r','7');
@@ -928,33 +998,37 @@ function onScroll() {
   document.getElementById('progress-bar').style.width = (sy / dh * 100) + '%';
 
   const introBottom = document.querySelector('.intro').offsetHeight;
-  const mapPanel = document.getElementById('map-panel');
+  const mapPanel    = document.getElementById('map-panel');
 
   if (isMob()) {
-    /* Mobile: map is always fixed.
-       Show it once we leave intro, hide during intro */
     if (sy > introBottom - 80) {
       mapPanel.classList.remove('mob-hidden');
       mapPanel.classList.add('visible');
+      document.body.classList.add('journey-active');
     } else {
       mapPanel.classList.add('mob-hidden');
       mapPanel.classList.remove('visible');
+      document.body.classList.remove('journey-active');
       hideDrawer();
       resetAll();
       return;
     }
 
-    /* Detect active stop by scroll position within journey */
-    const journey = document.getElementById('journey');
+    /* Compute exact progress through the 5-stop journey */
+    const journey   = document.getElementById('journey');
     const journeyTop = journey.getBoundingClientRect().top + sy;
-    const scrollInJourney = sy - journeyTop;
-    const stopH = window.innerHeight; // each stop = 1vh scroll
-    const idx = Math.max(0, Math.min(4, Math.floor(scrollInJourney / stopH)));
-    activate(idx);
+    const scrollInJ  = sy - journeyTop;
+    const totalH     = 5 * window.innerHeight;
+    const rawProgress = scrollInJ / totalH * 5; // 0..5
+    const clampedP    = Math.max(0, Math.min(4.999, rawProgress));
+    const stopIdx     = Math.floor(clampedP);
+    const frac        = clampedP - stopIdx; // 0..1 within this stop
+
+    activate(stopIdx, frac);
     return;
   }
 
-  /* Desktop: original logic */
+  /* Desktop */
   if (sy > introBottom - 120) {
     mapPanel.classList.add('visible');
   } else {
