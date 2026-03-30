@@ -198,10 +198,15 @@ body {
   display:grid; place-items:center;
   background:var(--ink);
   z-index:1000;
-  transition:opacity 1s ease, visibility 1s ease;
+  opacity:1;
+  transition:opacity .9s ease;
 }
 #loader.is-hidden {
-  opacity:0; visibility:hidden; pointer-events:none;
+  opacity:0;
+  pointer-events:none;
+}
+#loader.is-gone {
+  display:none;
 }
 .loader-inner {
   width:min(78vw,680px);
@@ -254,63 +259,117 @@ body {
 }
 
 /* ─────────────────────────────────────────
+   MOBILE BOTTOM DRAWER
+   Appears over the map when a stop is active
+───────────────────────────────────────── */
+#mob-drawer {
+  display: none; /* only on mobile */
+}
+
+/* ─────────────────────────────────────────
    MOBILE  ≤ 768 px — portrait
 ───────────────────────────────────────── */
 @media (max-width:768px) {
-  /* Map becomes a sticky strip at the top */
+
+  /* ── Map: always fixed, top half of screen ── */
   #map-panel {
-    position:sticky !important;
-    top:0; left:0;
-    width:100vw !important;
-    height:48vw !important;
-    min-height:200px; max-height:300px;
-    z-index:50;
+    position: fixed !important;
+    top: 0 !important; left: 0 !important;
+    width: 100vw !important;
+    height: 55vh !important;
+    z-index: 5 !important;
+    opacity: 1 !important;        /* always visible after intro */
+    pointer-events: all !important;
+    background: #EDE3CF !important;
+  }
+  /* Keep map hidden during intro on mobile too */
+  #map-panel.mob-hidden {
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 
-  /* Journey: normal document flow, no fixed height */
-  #journey { height:auto !important; }
-
-  /* Scroll col: full width, stacked */
-  #scroll-col {
-    position:static !important;
-    left:0 !important;
-    width:100% !important;
+  /* ── Journey: spacer so content scrolls below map ── */
+  #journey {
+    height: calc(5 * 100vh) !important;
+    position: relative !important;
+    margin-top: 55vh !important; /* push below fixed map */
   }
 
-  /* Each stop: auto height, comfortable padding */
-  .stop-section {
-    height:auto !important;
-    padding:2.5rem 7vw 2.5rem !important;
-    border-bottom:1px solid rgba(196,98,45,.15);
+  /* ── Scroll col: hidden on mobile — drawer replaces it ── */
+  #scroll-col { display: none !important; }
+
+  /* ── Outro: needs margin too ── */
+  .outro { margin-top: 0; }
+
+  /* ── Bottom drawer ── */
+  #mob-drawer {
+    display: block;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 60;
+    transform: translateY(100%);
+    transition: transform .45s cubic-bezier(.77,0,.175,1);
+  }
+  #mob-drawer.open {
+    transform: translateY(0);
   }
 
-  /* Cards always visible on mobile */
-  .stop-card {
-    max-width:100% !important;
-    opacity:1 !important;
-    transform:none !important;
-    pointer-events:all !important;
+  .mob-drawer-handle {
+    /* tap anywhere on handle to open modal */
+    background: var(--cream);
+    border-top: 2px solid var(--terra);
+    padding: .9rem 5vw .7rem;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mob-drawer-handle-left {
+    display: flex; flex-direction: column; gap: .15rem;
+  }
+  .mob-handle-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: .75rem; letter-spacing: .2em;
+    color: var(--terra); line-height: 1;
+  }
+  .mob-handle-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600; font-size: 1.25rem; line-height: 1.1;
+    color: var(--ink);
+  }
+  .mob-handle-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: .8rem;
+    color: var(--muted);
+  }
+  .mob-drawer-arrow {
+    font-family: 'Jost', sans-serif;
+    font-size: .65rem; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--terra);
+    border: 1px solid var(--terra);
+    padding: .45rem .9rem;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
-  /* Smaller type on small screens */
-  .card-index { font-size:3.8rem; }
-  .card-name  { font-size:1.75rem; }
+  /* ── Intro tweaks ── */
+  .intro { z-index: 20; } /* above map during intro */
+  .intro h1 { font-size: clamp(4rem, 18vw, 7rem); }
+  .intro-sub { font-size: .95rem; }
+  .scroll-cue { right: 5vw; }
 
-  /* Intro tweaks */
-  .intro h1 { font-size:clamp(4rem,18vw,7rem); }
-  .intro-sub { font-size:.95rem; }
-  .scroll-cue { right:5vw; }
+  /* ── Outro ── */
+  .outro { padding: 10vh 7vw; }
+  .outro h2 { font-size: clamp(1.5rem, 6vw, 2.5rem); }
 
-  /* Outro */
-  .outro { padding:10vh 7vw; }
-  .outro h2 { font-size:clamp(1.5rem,6vw,2.5rem); }
+  /* ── Modal full-screen on mobile ── */
+  .modal { width: 100vw !important; }
 
-  /* Modal full-screen on mobile */
-  .modal { width:100vw !important; }
+  /* ── Nav crumb smaller ── */
+  .crumb-city { font-size: .85rem; }
+  .crumb-stop { font-size: .58rem; }
 
-  /* Nav crumb smaller */
-  .crumb-city { font-size:.85rem; }
-  .crumb-stop { font-size:.58rem; }
+  /* ── Stop counter: position above drawer ── */
+  #stop-counter { bottom: 5rem; left: 1rem; }
 }
 
 /* ─────────────────────────────────────────
@@ -642,27 +701,42 @@ body {
   <div class="modal-body" id="modalBody"></div>
 </div>
 
+<!-- ═══ MOBILE BOTTOM DRAWER ═══ -->
+<div id="mob-drawer">
+  <div class="mob-drawer-handle" onclick="openModal(activeStop)">
+    <div class="mob-drawer-handle-left">
+      <div class="mob-handle-num" id="mob-num">Station 01</div>
+      <div class="mob-handle-name" id="mob-name">—</div>
+      <div class="mob-handle-sub" id="mob-sub">—</div>
+    </div>
+    <div class="mob-drawer-arrow">Mehr erfahren →</div>
+  </div>
+</div>
+
 <script>
 /* ── LOADER ── */
-const loader = document.getElementById('loader');
-setTimeout(() => loader.classList.add('is-hidden'), 2400);
+(function() {
+  const loader = document.getElementById('loader');
+  function dismiss() {
+    loader.classList.add('is-hidden');
+    loader.addEventListener('transitionend', () => loader.classList.add('is-gone'), { once: true });
+    // hard fallback: force gone after 1.5s regardless
+    setTimeout(() => loader.classList.add('is-gone'), 1500);
+  }
+  // Dismiss after animations complete (segments: ~1.9s, title: ~1.75s)
+  setTimeout(dismiss, 2000);
+  // Safety net: if somehow stuck after 4s, force remove
+  setTimeout(() => { loader.classList.add('is-hidden'); loader.classList.add('is-gone'); }, 4000);
+})();
 
 /* ── SCROLL TO STOP ── */
 function scrollToStop(idx) {
-  const sec = document.getElementById('sec' + idx);
-  if (!sec) return;
-  const isMob = window.innerWidth <= 768;
-  if (isMob) {
-    /* On mobile the map is sticky; just scroll section into view */
-    sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  } else {
-    /* Desktop: section sits inside #journey which is after .intro.
-       Compute absolute top of that section and scroll there. */
-    const journey = document.getElementById('journey');
-    const journeyTop = journey.getBoundingClientRect().top + window.scrollY;
-    const sectionTop = journeyTop + idx * window.innerHeight;
-    window.scrollTo({ top: sectionTop, behavior: 'smooth' });
-  }
+  /* Both desktop and mobile: journey sections are each 100vh tall.
+     Find the absolute top of #journey then add idx * 100vh. */
+  const journey = document.getElementById('journey');
+  const journeyTop = journey.getBoundingClientRect().top + window.scrollY;
+  const target = journeyTop + idx * window.innerHeight;
+  window.scrollTo({ top: target, behavior: 'smooth' });
 }
 
 /* ── MOBILE: show all cards immediately ── */
@@ -780,6 +854,21 @@ function animVB(target) {
 /* ── Scroll engine ── */
 let activeStop = -1;
 
+function isMob() { return window.innerWidth <= 768; }
+
+function updateDrawer(idx) {
+  if (!isMob()) return;
+  const s = STOPS[idx];
+  document.getElementById('mob-num').textContent  = `Station 0${idx+1}`;
+  document.getElementById('mob-name').textContent = s.name;
+  document.getElementById('mob-sub').textContent  = s.sub;
+  document.getElementById('mob-drawer').classList.add('open');
+}
+
+function hideDrawer() {
+  document.getElementById('mob-drawer').classList.remove('open');
+}
+
 function activate(idx) {
   if (idx === activeStop) return;
   activeStop = idx;
@@ -795,7 +884,9 @@ function activate(idx) {
     const r = document.getElementById('rp'+i);
     r.style.animation = 'none'; r.style.opacity = '0';
 
-    document.getElementById('card'+i).classList.toggle('active', i === idx);
+    if (!isMob()) {
+      document.getElementById('card'+i).classList.toggle('active', i === idx);
+    }
   }
 
   const ar = document.getElementById('rp'+idx);
@@ -811,6 +902,7 @@ function activate(idx) {
   ctr.classList.add('show');
 
   animVB(VB[idx]);
+  updateDrawer(idx);
 }
 
 function resetAll() {
@@ -826,6 +918,7 @@ function resetAll() {
   }
   document.getElementById('navCrumb').classList.remove('show');
   document.getElementById('stop-counter').classList.remove('show');
+  hideDrawer();
   animVB(VB0);
 }
 
@@ -837,7 +930,31 @@ function onScroll() {
   const introBottom = document.querySelector('.intro').offsetHeight;
   const mapPanel = document.getElementById('map-panel');
 
-  /* Show/hide map */
+  if (isMob()) {
+    /* Mobile: map is always fixed.
+       Show it once we leave intro, hide during intro */
+    if (sy > introBottom - 80) {
+      mapPanel.classList.remove('mob-hidden');
+      mapPanel.classList.add('visible');
+    } else {
+      mapPanel.classList.add('mob-hidden');
+      mapPanel.classList.remove('visible');
+      hideDrawer();
+      resetAll();
+      return;
+    }
+
+    /* Detect active stop by scroll position within journey */
+    const journey = document.getElementById('journey');
+    const journeyTop = journey.getBoundingClientRect().top + sy;
+    const scrollInJourney = sy - journeyTop;
+    const stopH = window.innerHeight; // each stop = 1vh scroll
+    const idx = Math.max(0, Math.min(4, Math.floor(scrollInJourney / stopH)));
+    activate(idx);
+    return;
+  }
+
+  /* Desktop: original logic */
   if (sy > introBottom - 120) {
     mapPanel.classList.add('visible');
   } else {
@@ -846,7 +963,6 @@ function onScroll() {
     return;
   }
 
-  /* Which stop is in focus? */
   let found = -1;
   document.querySelectorAll('.stop-section').forEach((sec, i) => {
     const r = sec.getBoundingClientRect();
