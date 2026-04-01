@@ -8,7 +8,7 @@
 <style>
 /* ═══════════════════════════════════════════
    TOKENS
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ */
 :root {
   --terra:  #C4622D;
   --siena:  #7A2E10;
@@ -34,7 +34,7 @@ body {
 
 /* ═══════════════════════════════════════════
    LOADER
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ */
 #loader {
   position:fixed; inset:0;
   display:grid; place-items:center;
@@ -86,7 +86,7 @@ body {
 
 /* ═══════════════════════════════════════════
    PROGRESS BAR
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ */
 #progress-bar {
   position:fixed; top:0; left:0; height:2px;
   background:var(--terra); z-index:200; pointer-events:none;
@@ -95,7 +95,7 @@ body {
 
 /* ═══════════════════════════════════════════
    NAV CRUMB  (top-left over map)
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ */
 #nav-crumb {
   position:fixed; top:0; left:0; right:0; z-index:100;
   padding:.9rem 1.2rem;
@@ -117,7 +117,7 @@ body {
 
 /* ═══════════════════════════════════════════
    INTRO  (full viewport, normal flow)
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ */
 .intro {
   height:100vh;
   background:var(--ink);
@@ -162,7 +162,7 @@ body {
 /* ═══════════════════════════════════════════
    MAP PANEL  — fixed, full width, top portion
    Hidden during intro, revealed on scroll
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ */
 #map-panel {
   position:fixed;
   top:0; left:0;
@@ -191,7 +191,7 @@ body {
    Sits immediately after the intro section.
    Height = 5 stops × 100vh
    No margin, no padding — drawer is fixed.
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ */
 #journey {
   height:calc(5 * 100vh);
   position:relative;
@@ -202,7 +202,7 @@ body {
 /* ═══════════════════════════════════════════
    DRAWER  — fixed, flush below map
    Slides down from map bottom when active
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ */
 #drawer {
   position:fixed;
   top:var(--map-h); left:0; right:0;
@@ -269,7 +269,7 @@ body {
 
 /* ═══════════════════════════════════════════
    OUTRO
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ */
 .outro {
   background:var(--ink);
   padding:12vh 8vw;
@@ -286,7 +286,7 @@ body {
 
 /* ═══════════════════════════════════════════
    MAP SVG  styles
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ */
 .city-block  { fill:#DDD0B5; stroke:#C8B898; stroke-width:.5; }
 .piazza-fill { fill:#C9936A; opacity:.55; }
 .street      { fill:none; stroke:#C0A882; stroke-width:3.5; }
@@ -307,7 +307,7 @@ body {
 
 /* ═══════════════════════════════════════════
    MODAL
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ */
 #backdrop {
   position:fixed; inset:0;
   background:rgba(26,18,9,.65); backdrop-filter:blur(5px);
@@ -348,9 +348,90 @@ body {
 .gal-arr.next{ right:.6rem; }
 
 /* ═══════════════════════════════════════════
-   SKETCH PANEL — fills space below drawer
+   SMART-TRACK BUTTON  (fixed, top-right)
+/* ═══════════════════════════════════════════ */
+#track-btn {
+  position: fixed;
+  top: .75rem; right: 1rem;
+  z-index: 150;
+  display: flex; align-items: center; gap: .45rem;
+  padding: .45rem .85rem .45rem .65rem;
+  border: 1.5px solid rgba(196,98,45,.4);
+  background: rgba(245,239,224,.92);
+  backdrop-filter: blur(6px);
+  border-radius: 2rem;
+  cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  font-size: .6rem; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--dim);
+  transition: background .25s, border-color .25s, color .25s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  /* hidden during intro */
+  opacity: 0; pointer-events: none;
+  transition: opacity .4s, background .25s, border-color .25s, color .25s;
+}
+#track-btn.show { opacity: 1; pointer-events: all; }
+#track-btn.active {
+  background: var(--terra);
+  border-color: var(--terra);
+  color: var(--cream);
+}
+#track-btn.acquiring {
+  background: rgba(196,98,45,.15);
+  border-color: var(--terra);
+  color: var(--terra);
+}
+.track-icon {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; flex-shrink: 0;
+}
+.track-icon::after {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+#track-btn.active .track-icon::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  animation: trackPulse 1.4s ease-out infinite;
+}
+@keyframes trackPulse {
+  0%   { transform:scale(1);   opacity:.8; }
+  100% { transform:scale(2.4); opacity:0;  }
+}
+
+/* Status toast */
+#track-toast {
+  position: fixed;
+  top: 3.6rem; right: 1rem;
+  z-index: 150;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: 'Jost', sans-serif;
+  font-size: .65rem; letter-spacing: .06em;
+  padding: .45rem .9rem;
+  border-radius: 1rem;
+  max-width: 55vw;
+  text-align: right;
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s;
+}
+#track-toast.show { opacity: 1; }
+
+/* Gallery: allow horizontal swipe */
+.modal-gallery { touch-action: pan-y; cursor: grab; }
+.modal-gallery.dragging { cursor: grabbing; }
+
    Fixed, below drawer, above outro
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════ */
 #sketch-panel {
   position: fixed;
   top: calc(var(--map-h) + var(--drawer-h));
@@ -447,6 +528,14 @@ body {
 
 <!-- CHROME -->
 <div id="progress-bar"></div>
+
+<!-- Smart-Track toggle -->
+<button id="track-btn" onclick="toggleTrack()" aria-label="Smart-Track umschalten">
+  <span class="track-icon"></span>
+  <span id="track-label">Smart-Track</span>
+</button>
+<div id="track-toast"></div>
+
 <div id="nav-crumb">
   <span class="crumb-city">Siena</span>
   <span class="crumb-sep">—</span>
@@ -818,7 +907,7 @@ body {
 <script>
 /* ═══════════════════════════════
    LOADER
-═══════════════════════════════ */
+/* ═══════════════════════════════ */
 (function(){
   const el = document.getElementById('loader');
   function dismiss(){
@@ -832,7 +921,7 @@ body {
 
 /* ═══════════════════════════════
    DATA
-═══════════════════════════════ */
+/* ═══════════════════════════════ */
 const STOPS = [
   {
     num:"01", name:"Porta Camollia", sub:"Das Stadttor des Willkommens",
@@ -903,7 +992,7 @@ const STOPS = [
 
 /* ═══════════════════════════════
    ROUTE
-═══════════════════════════════ */
+/* ═══════════════════════════════ */
 const TRAIL = [
   "M148,92",
   "M148,92 Q205,118 262,158",
@@ -931,7 +1020,7 @@ const VB = [
 
 /* ═══════════════════════════════
    HELPERS
-═══════════════════════════════ */
+/* ═══════════════════════════════ */
 function lerpVB(a, b, t){
   const pa = a.trim().split(/\s+/).map(Number);
   const pb = b.trim().split(/\s+/).map(Number);
@@ -940,7 +1029,7 @@ function lerpVB(a, b, t){
 
 /* ═══════════════════════════════
    STATE
-═══════════════════════════════ */
+/* ═══════════════════════════════ */
 let activeStop    = -1;
 let mapIntroShown = false;
 
@@ -949,7 +1038,7 @@ let mapIntroShown = false;
    Called once when map first appears.
    Zooms out from Stop-0 zoom level to give a "reveal" feel,
    then settles back to Stop-0 view.
-═══════════════════════════════ */
+/* ═══════════════════════════════ */
 function triggerMapIntro(){
   if (mapIntroShown) return;
   mapIntroShown = true;
@@ -992,7 +1081,7 @@ function animVBfromCurrent(target, dur){
 
 /* ═══════════════════════════════
    TRAVELLER DOT
-═══════════════════════════════ */
+/* ═══════════════════════════════ */
 function moveTraveller(globalT){
   const trav = document.getElementById('traveller');
   trav.style.opacity = '1';
@@ -1011,7 +1100,7 @@ function moveTraveller(globalT){
 
 /* ═══════════════════════════════
    ACTIVATE STOP
-═══════════════════════════════ */
+/* ═══════════════════════════════ */
 function activate(idx, globalT){
   /* Always move traveller */
   if (globalT !== undefined) moveTraveller(globalT);
@@ -1100,7 +1189,7 @@ function resetMap(){
 
 /* ═══════════════════════════════
    SCROLL ENGINE
-═══════════════════════════════ */
+/* ═══════════════════════════════ */
 function onScroll(){
   const sy       = window.scrollY;
   const dh       = document.documentElement.scrollHeight - innerHeight;
@@ -1121,7 +1210,10 @@ function onScroll(){
 
   /* First time past intro → trigger map intro animation */
   if (!mapIntroShown) triggerMapIntro();
-  else map.classList.add('map-intro'); // keep visible on subsequent scrolls back
+  else map.classList.add('map-intro');
+
+  /* Track button visibility */
+  updateTrackBtn(sy, introH);
 
   /* Compute globalT from scroll position within #journey */
   const journey    = document.getElementById('journey');
@@ -1140,7 +1232,7 @@ onScroll();
 
 /* ═══════════════════════════════
    SCROLL TO STOP
-═══════════════════════════════ */
+/* ═══════════════════════════════ */
 function scrollToStop(idx){
   const journey    = document.getElementById('journey');
   const journeyTop = journey.getBoundingClientRect().top + window.scrollY;
@@ -1149,7 +1241,7 @@ function scrollToStop(idx){
 
 /* ═══════════════════════════════
    MODAL
-═══════════════════════════════ */
+/* ═══════════════════════════════ */
 let galIdx = 0, galLen = 0;
 
 function openModal(idx){
@@ -1199,6 +1291,180 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight') galStep(1);
   if (e.key === 'ArrowLeft')  galStep(-1);
 });
+
+/* ═══════════════════════════════ */
+(function(){
+  const gallery = document.getElementById('modal');
+
+  let touchStartX = 0, touchStartY = 0, isDragging = false;
+
+  // We attach to the gallery element inside modal after it's opened
+  // Use event delegation on the modal itself
+  gallery.addEventListener('touchstart', e => {
+    const g = e.target.closest('.modal-gallery');
+    if (!g) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    isDragging = false;
+    g.classList.remove('dragging');
+  }, { passive: true });
+
+  gallery.addEventListener('touchmove', e => {
+    const g = e.target.closest('.modal-gallery');
+    if (!g) return;
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+    if (!isDragging && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
+      isDragging = true;
+      g.classList.add('dragging');
+    }
+  }, { passive: true });
+
+  gallery.addEventListener('touchend', e => {
+    const g = e.target.closest('.modal-gallery');
+    if (!g || !isDragging) return;
+    g.classList.remove('dragging');
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 40) {
+      galStep(dx < 0 ? 1 : -1);
+    }
+    isDragging = false;
+  }, { passive: true });
+})();
+
+/* ═══════════════════════════════
+   SMART-TRACK
+   Uses browser Geolocation API to
+   find the nearest stop and activate it.
+   The 5 stops are mapped to real Siena
+   GPS coordinates.
+/* ═══════════════════════════════ */
+
+/* Real GPS coordinates for each stop */
+const STOP_COORDS = [
+  { lat: 43.3237, lon: 11.3318 }, /* 0 Porta Camollia */
+  { lat: 43.3192, lon: 11.3302 }, /* 1 Piazza Salimbeni */
+  { lat: 43.3183, lon: 11.3319 }, /* 2 Piazza del Campo */
+  { lat: 43.3180, lon: 11.3317 }, /* 3 Palazzo Pubblico */
+  { lat: 43.3168, lon: 11.3302 }, /* 4 Duomo di Siena */
+];
+
+let trackActive    = false;
+let trackWatchId   = null;
+let toastTimer     = null;
+
+function haversine(a, b) {
+  /* Returns distance in metres between two {lat,lon} points */
+  const R  = 6371000;
+  const phi1 = a.lat * Math.PI / 180;
+  const phi2 = b.lat * Math.PI / 180;
+  const dphi = (b.lat - a.lat) * Math.PI / 180;
+  const dlam = (b.lon - a.lon) * Math.PI / 180;
+  const x  = Math.sin(dphi/2)*Math.sin(dphi/2) + Math.cos(phi1)*Math.cos(phi2)*Math.sin(dlam/2)*Math.sin(dlam/2);
+  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
+}
+
+function nearestStop(lat, lon) {
+  let best = 0, bestDist = Infinity;
+  STOP_COORDS.forEach((c, i) => {
+    const d = haversine({lat, lon}, c);
+    if (d < bestDist) { bestDist = d; best = i; }
+  });
+  return { idx: best, dist: Math.round(bestDist) };
+}
+
+function showToast(msg, duration) {
+  const t = document.getElementById('track-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  if (duration) toastTimer = setTimeout(() => t.classList.remove('show'), duration);
+}
+function hideToast() {
+  clearTimeout(toastTimer);
+  document.getElementById('track-toast').classList.remove('show');
+}
+
+function onGeoSuccess(pos) {
+  const lat = pos.coords.latitude, lon = pos.coords.longitude;
+
+  const btn = document.getElementById('track-btn');
+  btn.classList.remove('acquiring');
+  btn.classList.add('active');
+  document.getElementById('track-label').textContent = 'Smart-Track AN';
+
+  const { idx, dist } = nearestStop(lat, lon);
+
+  /* If within 800m of any stop, navigate to it */
+  if (dist < 800) {
+    /* Smooth-scroll the journey to that stop position */
+    scrollToStop(idx);
+    showToast(`Nächste Station: ${STOPS[idx].name} · ${dist} m`, 3500);
+  } else {
+    /* Outside Siena city area */
+    showToast(`Du bist ${(dist/1000).toFixed(1)} km von Siena entfernt`, 4000);
+  }
+}
+
+function onGeoError(err) {
+  const btn = document.getElementById('track-btn');
+  btn.classList.remove('active', 'acquiring');
+  document.getElementById('track-label').textContent = 'Smart-Track';
+  trackActive = false;
+  trackWatchId = null;
+
+  const msgs = {
+    1: 'Standortzugriff verweigert',
+    2: 'Standort nicht verfügbar',
+    3: 'Zeitüberschreitung'
+  };
+  showToast(msgs[err.code] || 'GPS-Fehler', 3500);
+}
+
+function toggleTrack() {
+  const btn = document.getElementById('track-btn');
+
+  if (trackActive) {
+    /* Turn OFF */
+    trackActive = false;
+    if (trackWatchId !== null) {
+      navigator.geolocation.clearWatch(trackWatchId);
+      trackWatchId = null;
+    }
+    btn.classList.remove('active', 'acquiring');
+    document.getElementById('track-label').textContent = 'Smart-Track';
+    hideToast();
+    return;
+  }
+
+  /* Turn ON */
+  if (!('geolocation' in navigator)) {
+    showToast('GPS nicht verfügbar', 3000);
+    return;
+  }
+
+  trackActive = true;
+  btn.classList.add('acquiring');
+  document.getElementById('track-label').textContent = 'Orten…';
+  showToast('Standort wird ermittelt…');
+
+  /* One-shot first fix for immediate response */
+  navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError, {
+    enableHighAccuracy: true, timeout: 10000, maximumAge: 0
+  });
+
+  /* Then watch continuously for movement */
+  trackWatchId = navigator.geolocation.watchPosition(onGeoSuccess, onGeoError, {
+    enableHighAccuracy: true, timeout: 15000, maximumAge: 5000
+  });
+}
+
+/* Show/hide track button based on scroll position */
+function updateTrackBtn(sy, introH) {
+  const btn = document.getElementById('track-btn');
+  if (sy > introH - 60) btn.classList.add('show');
+  else btn.classList.remove('show');
+}
 </script>
 </body>
 </html>
