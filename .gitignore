@@ -1,0 +1,15 @@
+# Backup files
+06_bak_*.html
+06_backup.html
+visitenkarte_bak_*.html
+
+# Working files (not deployed)
+06.html
+visitenkarte.html
+
+# Source assets (already embedded or not needed on server)
+NOLLI_PLAN.svg
+SS26_ALLG_TXT_*.docx
+
+# Claude internals
+.claude/
