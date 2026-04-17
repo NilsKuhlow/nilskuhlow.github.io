@@ -668,10 +668,14 @@ body {
 .stop-dot    { fill:var(--ink); cursor:pointer; }
 .stop-dot.visited    { fill:#aaaaaa; opacity:.8; }
 .stop-dot.active-dot { fill:var(--terra); filter:drop-shadow(0 0 5px rgba(212,115,61,.75)); }
-.lbl-district{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:11px; fill:rgba(0,0,0,.2); letter-spacing:.1em; }
-.lbl-street  { font-family:'Inter',sans-serif; font-size:9px; fill:#b0b0b0; }
-.lbl-piazza  { font-family:'Inter',sans-serif; font-size:9px; fill:#555; font-weight:500; }
-.stop-lbl    { font-family:'Inter',sans-serif; font-size:9px; fill:#333; font-weight:500; }
+.lbl-district{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:11px; fill:rgba(0,0,0,.45); letter-spacing:.1em;
+               stroke:#fff; stroke-width:2.5px; paint-order:stroke fill; }
+.lbl-street  { font-family:'Inter',sans-serif; font-size:9px; fill:#888;
+               stroke:#fff; stroke-width:2.5px; paint-order:stroke fill; }
+.lbl-piazza  { font-family:'Inter',sans-serif; font-size:9px; fill:#444; font-weight:600;
+               stroke:#fff; stroke-width:2.5px; paint-order:stroke fill; }
+.stop-lbl    { font-family:'Inter',sans-serif; font-size:9px; fill:#111; font-weight:700;
+               stroke:#fff; stroke-width:3px;   paint-order:stroke fill; }
 @keyframes ripple-anim {
   0%   { r:10; opacity:.5 }
   100% { r:28; opacity:0  }
