@@ -279,6 +279,18 @@ body {
 }
 .r-icon { flex-shrink:0; display:block; }
 
+/* Transparent overlay that captures touch in track mode.
+   touch-action:none tells the browser at CSS level to skip
+   scroll/zoom — no preventDefault() needed. z-index sits
+   above the map (5) and journey content, below the drawer (50). */
+#map-touch-layer {
+  position:fixed; inset:0; z-index:48;
+  touch-action:none;
+  display:none;
+  -webkit-tap-highlight-color:transparent;
+}
+#map-touch-layer.active { display:block; }
+
 /* ═══════════════════════════════════════════
    NAV CRUMB  (top bar — always in DOM, two
    independently animated halves)
@@ -903,6 +915,9 @@ body {
   </svg>
   </div><!-- /map-svg-wrap -->
 </div><!-- /map-panel -->
+
+<!-- Touch-capture overlay — only active in track mode (touch-action:none prevents scroll) -->
+<div id="map-touch-layer"></div>
 
 <!-- JOURNEY (scroll space only — no visible content) -->
 <div id="journey"></div>
@@ -1862,9 +1877,10 @@ function stopTrack(){
   document.getElementById('track-label').textContent='Smart-Track';
   /* Hide GPS dot */
   var g=document.getElementById('gps-group'); if(g) g.style.opacity='0';
-  /* Reset map-pan state */
+  /* Reset map-pan state + hide overlay */
   mapUserPanned = false;
   document.getElementById('return-btn').classList.remove('show');
+  document.getElementById('map-touch-layer').classList.remove('active');
   hideToast();
 }
 
@@ -1873,6 +1889,7 @@ function toggleTrack(){
   if (!('geolocation' in navigator)){ showToast('GPS nicht verfügbar',3000); return; }
 
   trackActive = true;
+  document.getElementById('map-touch-layer').classList.add('active');
   const btn=document.getElementById('track-btn');
   btn.classList.add('acquiring');
   document.getElementById('track-label').textContent='Orten…';
@@ -1894,23 +1911,23 @@ function toggleTrack(){
 
 /* ═══════════════════════════════════════════
    MAP TOUCH PAN + PINCH-ZOOM
-   Active only when trackActive = true.
-   Single-finger: pan. Two-finger: pinch-zoom.
-   Moving away from GPS position shows "Standort" return button.
+   Uses #map-touch-layer (touch-action:none) so the
+   browser never tries to scroll — no preventDefault needed.
+   Overlay is only .active when trackActive = true.
 ═══════════════════════════════════════════ */
 (function(){
-  var panel  = document.getElementById('map-panel');
-  var svg    = document.getElementById('mapSvg');
+  var layer = document.getElementById('map-touch-layer');
+  var svg   = document.getElementById('mapSvg');
 
   var CANVAS_W = 1000, CANVAS_H = 750;
   var MIN_VB_W = 80,   MAX_VB_W = 900;
 
   /* gesture state */
-  var _t0 = null, _t1 = null;  /* touch snapshots at gesture start */
-  var _vb0 = null;              /* viewBox at gesture start */
-  var _d0  = 0;                 /* initial pinch distance */
-  var _cx0 = 0, _cy0 = 0;      /* SVG-space pinch center */
-  var _didMove = false;         /* prevents showing btn on tap */
+  var _t0 = null, _t1 = null; /* touch snapshots at gesture start */
+  var _vb0 = null;             /* viewBox snapshot at gesture start */
+  var _d0  = 0;                /* initial pinch distance */
+  var _cx0 = 0, _cy0 = 0;     /* SVG-space pinch centre */
+  var _didMove = false;
 
   function clamp(v, lo, hi){ return v < lo ? lo : v > hi ? hi : v; }
 
@@ -1919,37 +1936,35 @@ function toggleTrack(){
     return Math.sqrt(dx*dx + dy*dy);
   }
 
-  /* Convert screen mid-point of two touches to SVG coordinate space */
+  /* Screen mid-point of two touches → SVG coordinate space */
   function svgMid(a, b){
-    var rect = panel.getBoundingClientRect();
+    var rect = layer.getBoundingClientRect();
     var vb   = svg.viewBox.baseVal;
-    var mx   = ((a.clientX + b.clientX) / 2) - rect.left;
-    var my   = ((a.clientY + b.clientY) / 2) - rect.top;
     return {
-      x: vb.x + mx / rect.width  * vb.width,
-      y: vb.y + my / rect.height * vb.height
+      x: vb.x + ((a.clientX + b.clientX) / 2 - rect.left) / rect.width  * vb.width,
+      y: vb.y + ((a.clientY + b.clientY) / 2 - rect.top)  / rect.height * vb.height
     };
   }
 
   function applyVB(x, y, w, h){
+    var aspect = _vb0 ? _vb0.h / _vb0.w : 0.75;
     w = clamp(MIN_VB_W, MAX_VB_W, w);
-    h = clamp(MIN_VB_W * (_vb0 ? _vb0.h / _vb0.w : 0.75), MAX_VB_W, h);
+    h = clamp(MIN_VB_W * aspect, MAX_VB_W * aspect, h);
     x = clamp(0, Math.max(0, CANVAS_W - w), x);
     y = clamp(0, Math.max(0, CANVAS_H - h), y);
     svg.setAttribute('viewBox',
       x.toFixed(1)+' '+y.toFixed(1)+' '+w.toFixed(1)+' '+h.toFixed(1));
   }
 
-  function markPanned(){
-    if (!_didMove) return;
-    if (!mapUserPanned){
+  function notifyPanned(){
+    if (_didMove && !mapUserPanned){
       mapUserPanned = true;
       document.getElementById('return-btn').classList.add('show');
     }
   }
 
-  panel.addEventListener('touchstart', function(e){
-    if (!trackActive) return;
+  /* ── touchstart: snapshot current state ── */
+  layer.addEventListener('touchstart', function(e){
     var vb = svg.viewBox.baseVal;
     _vb0 = { x: vb.x, y: vb.y, w: vb.width, h: vb.height };
     _didMove = false;
@@ -1964,43 +1979,43 @@ function toggleTrack(){
       var c = svgMid(_t0, _t1);
       _cx0 = c.x; _cy0 = c.y;
     }
-  }, { passive: true });
+  }, { passive: false });   /* non-passive so we can preventDefault if needed */
 
-  panel.addEventListener('touchmove', function(e){
-    if (!trackActive || !_vb0) return;
-    e.preventDefault();   /* block page scroll during map gesture */
+  /* ── touchmove: pan or pinch ── */
+  layer.addEventListener('touchmove', function(e){
+    if (!_vb0) return;
+    e.preventDefault();   /* belt-and-suspenders (touch-action:none already blocks scroll) */
     _didMove = true;
 
-    var rect = panel.getBoundingClientRect();
+    var rect = layer.getBoundingClientRect();
 
     if (e.touches.length === 1 && _t0 && !_t1){
-      /* ── PAN ── */
-      var dxPx = e.touches[0].clientX - _t0.clientX;
-      var dyPx = e.touches[0].clientY - _t0.clientY;
-      var dxSvg = dxPx * (_vb0.w / rect.width);
-      var dySvg = dyPx * (_vb0.h / rect.height);
+      /* PAN — delta always measured from gesture-start touch */
+      var dxSvg = (e.touches[0].clientX - _t0.clientX) * (_vb0.w / rect.width);
+      var dySvg = (e.touches[0].clientY - _t0.clientY) * (_vb0.h / rect.height);
       applyVB(_vb0.x - dxSvg, _vb0.y - dySvg, _vb0.w, _vb0.h);
-      markPanned();
 
     } else if (e.touches.length >= 2 && _t0 && _t1){
-      /* ── PINCH-ZOOM ── */
+      /* PINCH-ZOOM — scale from initial distance, keep centre fixed */
       var d1    = touchDist(e.touches[0], e.touches[1]);
-      var scale = _d0 / d1;               /* >1 zoom-in, <1 zoom-out */
+      var scale = _d0 / Math.max(d1, 1);
       var nw    = _vb0.w * scale;
-      var nh    = _vb0.h * scale;         /* maintain aspect */
+      var nh    = _vb0.h * scale;  /* maintain aspect ratio */
       applyVB(_cx0 - nw/2, _cy0 - nh/2, nw, nh);
-      markPanned();
     }
+
+    notifyPanned();
   }, { passive: false });
 
-  panel.addEventListener('touchend', function(e){
-    if (!trackActive) return;
-    /* Transition from pinch to single-finger pan: re-anchor */
+  /* ── touchend: re-anchor for finger-lift transitions ── */
+  layer.addEventListener('touchend', function(e){
     if (e.touches.length === 1){
+      /* Pinch → single-finger pan: re-anchor so there's no jump */
       var vb = svg.viewBox.baseVal;
       _vb0 = { x: vb.x, y: vb.y, w: vb.width, h: vb.height };
       _t0  = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
       _t1  = null;
+      _didMove = false;
     } else if (e.touches.length === 0){
       _t0 = _t1 = _vb0 = null;
     }
@@ -2193,6 +2208,7 @@ document.addEventListener('keydown', e => {
     /* Activate track mode if not already on */
     if (!trackActive) {
       trackActive = true;
+      document.getElementById('map-touch-layer').classList.add('active');
       var btn = document.getElementById('track-btn');
       btn.classList.remove('acquiring'); btn.classList.add('active');
       document.getElementById('track-label').textContent = 'Smart-Track AN';
