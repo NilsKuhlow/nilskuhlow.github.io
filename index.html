@@ -1272,8 +1272,9 @@ function activate(idx, globalT){
   document.getElementById('drawer').classList.add('open');
 
   /* ViewBox — only animate programmatically (dotTap/scrollToStop).
-     During scroll the lerpVB path already handles this continuously. */
-  if (!activate._fromScroll) animVBfromCurrent(VB[idx], 650);
+     During scroll  lerpVB already drives the viewBox continuously.
+     During GPS tracking moveGpsDot() drives the viewBox — skip too. */
+  if (!activate._fromScroll && !activate._fromGps) animVBfromCurrent(VB[idx], 650);
 }
 
 function resetMap(){
@@ -1695,13 +1696,16 @@ function updateTrackBtn(sy, introH){
    SMART-TRACK + LEAFLET
 ═══════════════════════════════ */
 
-/* Real GPS coords of each stop */
+/* Real GPS coords of each stop — matches STOPS[] order */
 const STOP_COORDS = [
-  [43.3237, 11.3318], /* 0 Porta Camollia */
-  [43.3192, 11.3302], /* 1 Piazza Salimbeni */
-  [43.3183, 11.3319], /* 2 Piazza del Campo */
-  [43.3180, 11.3317], /* 3 Palazzo Pubblico */
-  [43.3168, 11.3302], /* 4 Duomo di Siena */
+  [43.3216, 11.3303], /* 0 Banca Monte dei Paschi / Piazza Salimbeni */
+  [43.3195, 11.3261], /* 1 Fontebranda                               */
+  [43.3182, 11.3282], /* 2 Battistero di San Giovanni                */
+  [43.3176, 11.3276], /* 3 Duomo di Siena                            */
+  [43.3185, 11.3318], /* 4 Piazza del Campo                          */
+  [43.3184, 11.3323], /* 5 Palazzo Pubblico                          */
+  [43.3174, 11.3329], /* 6 Piazza del Mercato                        */
+  [43.3194, 11.3332], /* 7 Palazzo Piccolomini                       */
 ];
 
 /* Route as real GPS polyline */
@@ -1732,12 +1736,14 @@ function nearestStop(lat, lon){
   return { idx:best, dist:Math.round(bestD) };
 }
 
-/* Project real GPS coords onto SVG coordinate space */
+/* Project real GPS coords onto SVG coordinate space.
+   Calibrated with two anchors verified against all 8 WAYPOINTS:
+     Campo  (43.3185, 11.3318) → SVG (614, 438)
+     Mercato(43.3174, 11.3329) → SVG (680, 560)
+   Scale: ~60 000 SVG-units/° lon, ~109 000 SVG-units/° lat */
 function gpsToSvg(lat, lon) {
-  var LAT_N=43.332, LAT_S=43.310, LON_W=11.318, LON_E=11.345;
-  var SVG_X_W=148, SVG_X_E=470, SVG_Y_N=92, SVG_Y_S=448;
-  var x = SVG_X_W + (lon-LON_W)/(LON_E-LON_W)*(SVG_X_E-SVG_X_W);
-  var y = SVG_Y_N + (LAT_N-lat)/(LAT_N-LAT_S)*(SVG_Y_S-SVG_Y_N);
+  var x = 614 + (lon - 11.3318) * 60000;
+  var y = 438 - (lat - 43.3185) * 109000;
   return { x: x, y: y };
 }
 
@@ -1755,9 +1761,9 @@ function moveGpsDot(lat, lon) {
   /* Center the viewBox on the GPS point */
   var w = vb.width, h = vb.height;
   var tx = pt.x - w/2, ty = pt.y - h/2;
-  /* Clamp to SVG bounds */
-  tx = Math.max(0, Math.min(620-w, tx));
-  ty = Math.max(0, Math.min(700-h, ty));
+  /* Clamp to SVG bounds (SVG canvas is ~900 × 750) */
+  tx = Math.max(0, Math.min(900-w, tx));
+  ty = Math.max(0, Math.min(750-h, ty));
   animVB(vb.x+' '+vb.y+' '+vb.width+' '+vb.height, tx+' '+ty+' '+w+' '+h, 600);
 }
 
@@ -1776,11 +1782,11 @@ function onGeoSuccess(pos){
   var idx=near.idx, dist=near.dist;
   if (dist < 800){
     showToast('Nächste Station: '+STOPS[idx].name+' · '+dist+' m', 4000);
-    if (dist < 25) {
-      document.getElementById('drawer-num').textContent  = (LANG[currentLang]||LANG.de).modal_station + ' 0' + (idx+1) + ' \u2014 0' + (idx+1) + ' / 08';
-      document.getElementById('drawer-name').textContent = STOPS[idx].name;
-      document.getElementById('drawer-sub').textContent  = STOPS[idx].sub;
-      document.getElementById('drawer').classList.add('open');
+    /* 50 m threshold — accounts for real-world GPS accuracy (typ. ±10-30 m) */
+    if (dist < 50 && idx !== activeStop) {
+      activate._fromGps = true;   /* suppress lerpVB — GPS already drives viewBox */
+      activate(idx);
+      activate._fromGps = false;
     }
   } else {
     showToast((dist/1000).toFixed(1)+' km von Siena entfernt', 4000);
@@ -1913,20 +1919,66 @@ document.addEventListener('keydown', e => {
 (function(){
   if (!/[?&]debug/.test(location.search)) return;
 
-  /* Waypoints along the real route with small random offsets to feel alive */
+  /* Simulated walking route through all 8 stops in order.
+     Each cluster of coords brings the user into the stop's 50 m radius,
+     then walks to the next one. Matches STOPS[] indices 0-7. */
   const SIM_ROUTE = [
-    [43.3237, 11.3318], /* Porta Camollia */
-    [43.3228, 11.3314],
-    [43.3218, 11.3308],
-    [43.3205, 11.3303],
-    [43.3192, 11.3302], /* Piazza Salimbeni */
-    [43.3189, 11.3308],
-    [43.3186, 11.3315],
-    [43.3183, 11.3319], /* Il Campo */
-    [43.3181, 11.3318],
-    [43.3180, 11.3317], /* Palazzo Pubblico */
-    [43.3175, 11.3312],
-    [43.3168, 11.3302], /* Duomo */
+    /* — STOP 0: Banca Monte dei Paschi / Piazza Salimbeni — */
+    [43.3220, 11.3306],
+    [43.3218, 11.3304],
+    [43.3216, 11.3303], /* ★ stop 0 — within 50 m */
+    [43.3214, 11.3301],
+    /* walk west toward Fontebranda */
+    [43.3210, 11.3294],
+    [43.3205, 11.3284],
+    [43.3199, 11.3272],
+    /* — STOP 1: Fontebranda — */
+    [43.3197, 11.3265],
+    [43.3195, 11.3261], /* ★ stop 1 — within 50 m */
+    [43.3193, 11.3260],
+    /* walk south-east toward Battistero */
+    [43.3191, 11.3265],
+    [43.3188, 11.3272],
+    [43.3185, 11.3278],
+    /* — STOP 2: Battistero di San Giovanni — */
+    [43.3183, 11.3281],
+    [43.3182, 11.3282], /* ★ stop 2 — within 50 m */
+    [43.3181, 11.3282],
+    /* walk south (Duomo is very close) */
+    [43.3180, 11.3280],
+    [43.3178, 11.3278],
+    /* — STOP 3: Duomo di Siena — */
+    [43.3177, 11.3277],
+    [43.3176, 11.3276], /* ★ stop 3 — within 50 m */
+    [43.3175, 11.3276],
+    /* walk east toward Campo */
+    [43.3176, 11.3285],
+    [43.3178, 11.3295],
+    [43.3181, 11.3307],
+    /* — STOP 4: Piazza del Campo — */
+    [43.3184, 11.3315],
+    [43.3185, 11.3318], /* ★ stop 4 — within 50 m */
+    [43.3184, 11.3320],
+    /* walk south (Palazzo Pubblico is immediately adjacent) */
+    [43.3184, 11.3322],
+    /* — STOP 5: Palazzo Pubblico — */
+    [43.3184, 11.3323], /* ★ stop 5 — within 50 m */
+    [43.3183, 11.3324],
+    /* walk south-east toward Mercato */
+    [43.3181, 11.3326],
+    [43.3178, 11.3327],
+    [43.3176, 11.3328],
+    /* — STOP 6: Piazza del Mercato — */
+    [43.3175, 11.3329],
+    [43.3174, 11.3329], /* ★ stop 6 — within 50 m */
+    [43.3173, 11.3329],
+    /* walk north toward Piccolomini */
+    [43.3176, 11.3330],
+    [43.3181, 11.3331],
+    [43.3187, 11.3331],
+    /* — STOP 7: Palazzo Piccolomini — */
+    [43.3192, 11.3332],
+    [43.3194, 11.3332], /* ★ stop 7 — within 50 m */
   ];
 
   let simIdx = 0;
@@ -1936,7 +1988,7 @@ document.addEventListener('keydown', e => {
   /* Inject debug UI */
   const panel = document.createElement('div');
   panel.style.cssText = `
-    position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%);
+    position:fixed; bottom:6rem; left:50%; transform:translateX(-50%);
     z-index:9999; background:#1A1209; border-radius:2rem;
     display:flex; align-items:center; gap:.5rem; padding:.5rem .9rem;
     font-family:'Inter',sans-serif; font-size:.6rem; letter-spacing:.12em;
