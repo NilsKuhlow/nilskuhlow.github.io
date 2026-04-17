@@ -1965,11 +1965,16 @@ function toggleTrack(){
       x.toFixed(1)+' '+y.toFixed(1)+' '+w.toFixed(1)+' '+h.toFixed(1));
   }
 
-  /* ── touchstart: cancel GPS animation, lock auto-pan immediately ── */
+  /* ── touchstart ──
+     preventDefault() is critical on iOS Safari: it tells the browser
+     immediately to NOT take over the gesture as a scroll — before any
+     touchmove fires. cancelAnimVB() stops GPS animation in its tracks.
+     mapUserPanned = true blocks new GPS auto-pans for this gesture.
+     We do NOT show the return-btn yet — only after real movement. */
   layer.addEventListener('touchstart', function(e){
-    cancelAnimVB();          /* stop any running GPS auto-pan immediately */
-    mapUserPanned = true;    /* block GPS auto-follow before first touchmove */
-    document.getElementById('return-btn').classList.add('show');
+    e.preventDefault();        /* iOS: kill scroll take-over before touchmove */
+    cancelAnimVB();            /* stop any in-flight GPS animation */
+    mapUserPanned = true;      /* block GPS auto-pan for duration of gesture */
 
     var vb = svg.viewBox.baseVal;
     _vb0 = { x: vb.x, y: vb.y, w: vb.width, h: vb.height };
@@ -1990,7 +1995,7 @@ function toggleTrack(){
   /* ── touchmove: pan or pinch-zoom ── */
   layer.addEventListener('touchmove', function(e){
     if (!_vb0) return;
-    e.preventDefault();   /* belt-and-suspenders (touch-action:none already blocks scroll) */
+    e.preventDefault();
     _didMove = true;
 
     var rect = layer.getBoundingClientRect();
@@ -2005,21 +2010,31 @@ function toggleTrack(){
       /* PINCH-ZOOM */
       var d1    = touchDist(e.touches[0], e.touches[1]);
       var scale = _d0 / Math.max(d1, 1);
-      var nw    = _vb0.w * scale;
-      var nh    = _vb0.h * scale;
-      applyVB(_cx0 - nw/2, _cy0 - nh/2, nw, nh);
+      applyVB(_cx0 - _vb0.w*scale/2, _cy0 - _vb0.h*scale/2,
+              _vb0.w * scale, _vb0.h * scale);
+    }
+
+    /* Show return button only after real movement (not on tap) */
+    if (_didMove && !document.getElementById('return-btn').classList.contains('show')){
+      document.getElementById('return-btn').classList.add('show');
     }
   }, { passive: false });
 
-  /* ── touchend: re-anchor for pinch→pan transitions ── */
+  /* ── touchend: re-anchor for pinch→pan; restore GPS on bare tap ── */
   layer.addEventListener('touchend', function(e){
     if (e.touches.length === 1){
+      /* Pinch → single-finger: re-anchor from current position */
       var vb = svg.viewBox.baseVal;
       _vb0 = { x: vb.x, y: vb.y, w: vb.width, h: vb.height };
       _t0  = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
       _t1  = null;
       _didMove = false;
     } else if (e.touches.length === 0){
+      /* All fingers lifted */
+      if (!_didMove){
+        /* Pure tap — restore GPS auto-follow (no pan happened) */
+        mapUserPanned = false;
+      }
       _t0 = _t1 = _vb0 = null;
     }
   }, { passive: true });
