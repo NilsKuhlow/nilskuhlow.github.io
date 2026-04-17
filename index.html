@@ -1568,11 +1568,11 @@ function onScroll(){
   const rawIdx  = Math.floor(globalT);
   const frac    = globalT - rawIdx;
 
-  /* Hysteresis: hold on current stop for the first / last 8 % of each segment.
-     Prevents the dot from flickering when momentum-scroll oscillates near a boundary. */
+  /* Hysteresis (backward only): if the user scrolls slightly back past a stop
+     boundary, keep the current stop active to prevent flickering.
+     Forward direction has no delay — stops activate the moment you scroll in. */
   let stopIdx = rawIdx;
   if (activeStop >= 0) {
-    if (rawIdx === activeStop + 1 && frac < 0.08) stopIdx = activeStop; // just crossed fwd
     if (rawIdx === activeStop - 1 && frac > 0.92) stopIdx = activeStop; // just crossed back
   }
   stopIdx = Math.max(0, Math.min(7, stopIdx));
