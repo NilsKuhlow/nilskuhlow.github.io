@@ -3498,11 +3498,13 @@ function openPlaces(){
   renderPlacesList();
   document.getElementById('places-panel').classList.add('open');
   document.body.style.overflow = 'hidden'; /* prevent background scroll */
+  trapFocus(document.getElementById('places-panel'));
 }
 
 function closePlaces(){
   document.getElementById('places-panel').classList.remove('open');
   document.body.style.overflow = '';
+  releaseFocus();
 }
 
 /* Modal for extra places (not on route), reuses the same modal UI
@@ -3597,12 +3599,14 @@ function openModal(idx, _placeObj){
   startGalAuto();
   /* Show swipe hint only when there are multiple photos to swipe between */
   if (galLen > 1) showPhotoHint();
+  trapFocus(document.getElementById('modal'));
 }
 
 function closeModal(){
   stopGalAuto();
   document.getElementById('modal').classList.remove('open');
   document.getElementById('backdrop').classList.remove('open');
+  releaseFocus();
 }
 
 function startGalAuto(){
@@ -3640,6 +3644,46 @@ function galTo(i, _auto){
   else _restartProgressAnim(); // auto advance, just restart the bar
 }
 function galStep(d){ galTo(galIdx + d); }
+
+/* ── Focus trap for modal dialogs ─────────────────────────────
+   Keeps keyboard focus inside the open dialog (Tab cycles within it).
+   Restores focus to the previously focused element on close.
+──────────────────────────────────────────────────────────────── */
+var _ftEl   = null;
+var _ftPrev = null;
+var _FT_SEL = 'a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])';
+
+function trapFocus(el) {
+  releaseFocus();
+  _ftEl   = el;
+  _ftPrev = document.activeElement;
+  var first = el.querySelector(_FT_SEL);
+  if (first) first.focus();
+  el.addEventListener('keydown', _ftKeyHandler);
+}
+
+function releaseFocus() {
+  if (_ftEl) {
+    _ftEl.removeEventListener('keydown', _ftKeyHandler);
+    _ftEl = null;
+  }
+  try { if (_ftPrev) _ftPrev.focus(); } catch(e) {}
+  _ftPrev = null;
+}
+
+function _ftKeyHandler(e) {
+  if (e.key !== 'Tab') return;
+  var items = Array.from(_ftEl.querySelectorAll(_FT_SEL)).filter(function(n) {
+    return !!(n.offsetWidth || n.offsetHeight || n.getClientRects().length);
+  });
+  if (!items.length) { e.preventDefault(); return; }
+  var first = items[0], last = items[items.length - 1];
+  if (e.shiftKey) {
+    if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+  } else {
+    if (document.activeElement === last)  { e.preventDefault(); first.focus(); }
+  }
+}
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
