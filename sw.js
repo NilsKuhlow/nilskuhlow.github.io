@@ -8,7 +8,7 @@
    ⚠ Bump CACHE version on every deploy that changes files.
 ═══════════════════════════════════════════════════════════ */
 
-const CACHE = 'siena-v3';
+const CACHE = 'siena-v4';
 
 /* All local assets that must work fully offline */
 const PRECACHE = [
@@ -18,41 +18,67 @@ const PRECACHE = [
   '/NOLLI_PLAN_FINAL.svg',
   '/manifest.json',
   '/icon.svg',
-  /* stop 0 – Banca Monte dei Paschi */
+  /* ── stop 0 – Banca Monte dei Paschi ── */
   '/img/stop0/Website-11.jpg',
   '/img/stop0/Website-6.jpg',
-  /* stop 1 – Fontebranda */
+  '/img/stop0/Website-11_sm.webp',
+  '/img/stop0/Website-6_sm.webp',
+  /* ── stop 1 – Fontebranda ── */
   '/img/stop1/Website-5.jpg',
   '/img/stop1/Website-7.jpg',
   '/img/stop1/Website-8.jpg',
-  /* stop 2 – Battistero */
+  '/img/stop1/Website-5_sm.webp',
+  '/img/stop1/Website-7_sm.webp',
+  '/img/stop1/Website-8_sm.webp',
+  /* ── stop 2 – Battistero ── */
   '/img/stop2/Baptisterium-1.jpg',
   '/img/stop2/Baptisterium-2.jpg',
   '/img/stop2/Baptisterium-3.jpg',
-  /* stop 3 – Duomo */
+  '/img/stop2/Baptisterium-1_sm.webp',
+  '/img/stop2/Baptisterium-2_sm.webp',
+  '/img/stop2/Baptisterium-3_sm.webp',
+  /* ── stop 3 – Duomo ── */
   '/img/stop3/Website-13.jpg',
   '/img/stop3/Website-14.jpg',
   '/img/stop3/Website-15.jpg',
   '/img/stop3/Website-16.jpg',
-  /* stop 4 – Piazza del Campo */
+  '/img/stop3/Website-13_sm.webp',
+  '/img/stop3/Website-14_sm.webp',
+  '/img/stop3/Website-15_sm.webp',
+  '/img/stop3/Website-16_sm.webp',
+  /* ── stop 4 – Piazza del Campo ── */
   '/img/stop4/Website-17.jpg',
   '/img/stop4/Website-18.jpg',
   '/img/stop4/Website-19.jpg',
   '/img/stop4/Website-20.jpg',
   '/img/stop4/Website-21.jpg',
   '/img/stop4/Website-22.jpg',
-  /* stop 5 – Palazzo Pubblico */
+  '/img/stop4/Website-17_sm.webp',
+  '/img/stop4/Website-18_sm.webp',
+  '/img/stop4/Website-19_sm.webp',
+  '/img/stop4/Website-20_sm.webp',
+  '/img/stop4/Website-21_sm.webp',
+  '/img/stop4/Website-22_sm.webp',
+  /* ── stop 5 – Palazzo Pubblico ── */
   '/img/stop5/Website-3.jpg',
   '/img/stop5/Website-4.jpg',
   '/img/stop5/Website-24.jpg',
   '/img/stop5/Website-25.jpg',
-  /* stop 6 – Piazza del Mercato */
+  '/img/stop5/Website-3_sm.webp',
+  '/img/stop5/Website-4_sm.webp',
+  '/img/stop5/Website-24_sm.webp',
+  '/img/stop5/Website-25_sm.webp',
+  /* ── stop 6 – Piazza del Mercato ── */
   '/img/stop6/Website-2.jpg',
   '/img/stop6/Website-9.jpg',
   '/img/stop6/Website-10.jpg',
-  /* stop 7 – Palazzo Piccolomini */
+  '/img/stop6/Website-2_sm.webp',
+  '/img/stop6/Website-9_sm.webp',
+  '/img/stop6/Website-10_sm.webp',
+  /* ── stop 7 – Palazzo Piccolomini ── */
   '/img/stop7/Website-23.jpg',
-  /* extra places – Neue Orte (spaces encoded as %20) */
+  '/img/stop7/Website-23_sm.webp',
+  /* ── extra places – Neue Orte (spaces encoded as %20) ── */
   '/img/Neue%20Orte/PortaCamolla1.jpg',
   '/img/Neue%20Orte/PortaCamollia2.jpg',
   '/img/Neue%20Orte/SantaMariadella%20Scala.jpg',
@@ -81,6 +107,35 @@ const PRECACHE = [
   '/img/Neue%20Orte/PortaRomana2.jpg',
   '/img/Neue%20Orte/SantAgostino.jpg',
   '/img/Neue%20Orte/SantAgostino2.jpg',
+  /* ── Neue Orte – mobile WebP variants (_sm.webp, max 800 px wide) ── */
+  '/img/Neue%20Orte/PortaCamolla1_sm.webp',
+  '/img/Neue%20Orte/PortaCamollia2_sm.webp',
+  '/img/Neue%20Orte/SantaMariadella%20Scala_sm.webp',
+  '/img/Neue%20Orte/SantaMariadella%20Scala2_sm.webp',
+  '/img/Neue%20Orte/BasilicadiSanDomenico_sm.webp',
+  '/img/Neue%20Orte/BasilicadieSanDomenico2_sm.webp',
+  '/img/Neue%20Orte/Torredella%20Mercanzia_sm.webp',
+  '/img/Neue%20Orte/TorredellaMercanzia2_sm.webp',
+  '/img/Neue%20Orte/PalazzoTolomei_sm.webp',
+  '/img/Neue%20Orte/PalazzoTolomei2_sm.webp',
+  '/img/Neue%20Orte/LogiadellaMercanzia_sm.webp',
+  '/img/Neue%20Orte/LoggiaDellaMercanzia_sm.webp',
+  '/img/Neue%20Orte/PinacotecaNazionale_sm.webp',
+  '/img/Neue%20Orte/PinacotecaNazionale2_sm.webp',
+  '/img/Neue%20Orte/BasilicadieSanFrancesco_sm.webp',
+  '/img/Neue%20Orte/BasilicadieSanFrancesco2_sm.webp',
+  '/img/Neue%20Orte/OratoriodiSanBernardino_sm.webp',
+  '/img/Neue%20Orte/OratoriodiSanBernardino2_sm.webp',
+  '/img/Neue%20Orte/PalazzoChigiSaracini_sm.webp',
+  '/img/Neue%20Orte/PalazzoChigiSaracini2_sm.webp',
+  '/img/Neue%20Orte/Medici-Festung_sm.webp',
+  '/img/Neue%20Orte/Medici-Festung2_sm.webp',
+  '/img/Neue%20Orte/FonteGaia_sm.webp',
+  '/img/Neue%20Orte/FonteGaia2_sm.webp',
+  '/img/Neue%20Orte/PortaRomana_sm.webp',
+  '/img/Neue%20Orte/PortaRomana2_sm.webp',
+  '/img/Neue%20Orte/SantAgostino_sm.webp',
+  '/img/Neue%20Orte/SantAgostino2_sm.webp',
 ];
 
 /* ── Update trigger from page script ── */
