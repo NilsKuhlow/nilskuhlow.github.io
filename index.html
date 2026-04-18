@@ -3555,6 +3555,20 @@ function openExtraPlace(j){
   }, { passive:true });
 })();
 
+/* ── Responsive background helper ─────────────────────────────
+   On narrow screens (≤768 px) swap the JPG source for the pre-generated
+   _sm.webp variant (max 800 px wide — ~75 % smaller than the original).
+   On wider screens the original JPG is kept: these files are already
+   so heavily compressed that converting them to WebP produces *larger*
+   files, so we only serve WebP on mobile where the size reduction matters.
+──────────────────────────────────────────────────────────────── */
+function adaptBg(bgStr) {
+  if (window.innerWidth > 768) return bgStr;
+  return bgStr.replace(/url\('([^']+\.jpg)'\)/g, function(_, p) {
+    return "url('" + p.replace(/\.jpg$/i, '_sm.webp') + "')";
+  });
+}
+
 function openModal(idx, _placeObj){
   const s = _placeObj || ((idx >= 0 && idx < 8) ? STOPS[idx] : STOPS[activeStop]);
   if (!s) return;
@@ -3564,7 +3578,7 @@ function openModal(idx, _placeObj){
 
   document.getElementById('galSlides').innerHTML = s.slides.map(sl => `
     <div class="gallery-slide">
-      <div class="slide-bg" style="background:${sl.bg}"></div>
+      <div class="slide-bg" style="background:${adaptBg(sl.bg)}"></div>
     </div>`).join('');
 
   document.getElementById('galNav').innerHTML = s.slides.map((_,i) =>
