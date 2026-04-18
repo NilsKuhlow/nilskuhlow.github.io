@@ -849,7 +849,7 @@ body {
 ═══════════════════════════════════════════ */
 #journey-hint {
   position:fixed;
-  bottom:calc(var(--drawer-h, 80px) + 1.1rem);
+  bottom:5.8rem;   /* clears the drawer (~80px) + safe-area breathing room */
   left:50%; transform:translateX(-50%);
   z-index:48; pointer-events:none;
   display:none;
@@ -3291,7 +3291,7 @@ function openModal(idx, _placeObj){
   document.getElementById('galNav').style.display = singleSlide ? 'none' : '';
   /* Photo counter */
   var cnt = document.getElementById('gal-counter');
-  if (cnt) { cnt.style.display = singleSlide ? 'none' : ''; cnt.textContent = '1 / ' + galLen; }
+  if (cnt) { cnt.style.display = singleSlide ? 'none' : 'block'; cnt.textContent = '1 / ' + galLen; }
 
   document.getElementById('modal').classList.add('open');
   document.getElementById('backdrop').classList.add('open');
